@@ -1,129 +1,178 @@
-# INSTANTENGINE v3.1.0 — multi-app retention engine (QA)
+# INSTANTENGINE: consent-first retention engine for multi-app backends
 
-**Renamed from RIVERENGINE.** Official master: [INSTANTENGINE.MD](INSTANTENGINE.MD). Historical package, API and database compatibility is documented in [v3.1 migration](docs/V31_INSTANTENGINE_MIGRATION.md).
+INSTANTENGINE is a Node.js (ESM) and PostgreSQL retention engine. Several apps can share it from their own authenticated backends. It covers habits and streaks, contextual reminder planning, A/B experiment reporting, a transparent churn-risk index, and a **read-only, privacy-preserving tool surface for an LLM agent** that analyses retention data.
 
-This distribution is **not** enabled in production. No real notifications, customer data, user traffic, subscriptions or external AI models were connected in these QA tests.
+> **Status: source QA only. It is not deployed to production.** No real users, notifications, customer data or external AI models were connected in any of the test runs described here.
 
-Quick verification: `npm test && npm run test:stats && npm run db:verify-install && npm run check:manifest`. The optional independent cleanup worker is `npm run worker:purge` (OFF by default).
+## The problem it solves
 
----
+Teams that run several consumer apps tend to re-implement the same retention mechanics in each app: streaks, reminders, experiments and churn signals. These copies often take shortcuts that hurt users and data quality:
 
-## Historical documentation (RIVERENGINE v3.0 and earlier)
+- they send notifications without verified consent, during quiet hours, or after the user has stopped responding;
+- they count app opens or clicks as "value" and report correlation as causal lift;
+- they give analytics or AI agents raw, user-level data and write access.
 
-# RIVERENGINE v3.0 — Consent-safe churn analytics (source QA)
+INSTANTENGINE puts these rules in one tested, server-only engine. Any send decision has to pass deterministic safety policy (consent, holdout, quiet hours, cadence, fatigue caps) before a job is queued. Only backend-verified "value events" count toward progress. Experiment reports refuse to claim causality they can't support. The AI agent can only *observe* k-anonymised aggregates through signed, scoped, read-only calls.
 
-**New:** backend-verified engagement signals, daily scoped churn risk **index**, optional externally validated probabilistic model, voluntary in-app permission explanation, no automatic push sends, read-only Grokbot cohort report, and migration `0015`.
+## Architecture
 
-**Install & limitations:** [`docs/V30_CHURN_PREDICTION.md`](docs/V30_CHURN_PREDICTION.md). QA: `npm run test:churn`, `npm test`, `npm run test:stats`, `npm run db:verify-install`. Code does **not** establish a live prediction service or claim a calibrated return probability without training and valid independent outcome labels.
+```mermaid
+flowchart LR
+  subgraph Clients
+    A[iOS / Android / Web app]
+  end
+  subgraph AppBackend[App backend - trusted]
+    B[Auth + business logic]
+    I[App instrumentation<br/>verified value events]
+  end
+  subgraph Engine[INSTANTENGINE - server-only]
+    G[HMAC gateway<br/>replay + scope checks]
+    C[Core SDK<br/>habits, missions, consent, holdout]
+    P[Policy + smart reminder planner]
+    X[Experiments + D1/D7/D30 analytics]
+    K[Churn risk index<br/>optional validated model]
+    O[Observer API<br/>read-only, k-anonymous]
+  end
+  subgraph Data
+    DB[(PostgreSQL / Neon<br/>migrations 0000-0015)]
+    Q[[Outbox / job queue]]
+  end
+  subgraph Workers[Opt-in workers, OFF by default]
+    W[Push worker]
+    V[Value-outbox telemetry pump]
+    CH[Churn + purge jobs]
+  end
+  subgraph Offline[Offline Python]
+    PY[statsmodels A/B, MABWiser bandit,<br/>churn calibration]
+  end
+  AG[LLM agent skill<br/>agents/grokbot]
 
----
+  A --> B --> I --> G --> C
+  C --> P --> Q
+  C --> DB
+  X --> DB
+  K --> DB
+  Q --> W
+  Q --> V
+  CH --> DB
+  PY -. operator-signed policy .-> P
+  AG -- signed, scoped, read-only --> O --> DB
+```
 
-# RIVERENGINE v2.9 — Grokbot Retention Observer (QA)
+Main modules:
 
-Inclui o ciclo **evento verificado → outbox PostgreSQL transacional → telemetria com revalidação de consentimento → agregados Neon → observação de Grokbot**. O agente tem ferramentas de leitura com assinatura HMAC, isoladas por aplicativo, e não executa mudanças. A execução real depende de backend, credenciais e agendador Grokbot configurados.
+| Area | Files |
+|---|---|
+| Core SDK and policy | `src/index.mjs`, `src/policy.mjs`, `src/habits.mjs`, `src/decisions.mjs`, `src/retention-next.mjs`, `src/smart-notifications.mjs` |
+| Analytics and experiments | `src/analytics.mjs`, `src/duolingo-retention.mjs`, `src/integrations/posthog*.mjs`, `python/ab_statsmodels.py` |
+| Churn | `src/churn-prediction.mjs`, `src/storage/churn-neon.mjs`, `python/churn_train_offline.py`, `bin/run-churn*.mjs` |
+| Transport and security | `src/integrations/http-gateway.mjs` (HMAC, nonce replay protection, scope binding) |
+| Storage | `src/storage/neon.mjs` (parameterised SQL), `src/storage/memory.mjs` (test adapter), `migrations/0000-0015` |
+| Workers | `src/worker.mjs`, `src/integrations/value-outbox.mjs`, `src/integrations/graphile-worker.mjs`, `bin/` |
+| AI agent surface | `src/integrations/grokbot-observer.mjs`, `src/storage/observer-neon.mjs`, `agents/grokbot/` (skill and signed CLI client) |
+| Offline ML | `python/bandit_offline.py` (MABWiser), `src/integrations/bandit-policy.mjs` (operator-signed policy loader) |
 
-**Documentação e instalação:** [`docs/GROKBOT_OBSERVER_V29.md`](docs/GROKBOT_OBSERVER_V29.md). **Migração adicional:** `migrations/0014_verified_value_outbox.sql`. **Teste QA:** `npm run test:observer` e `npm test`. **Demo:** `npm run demo:observer`.
+### Where AI fits in, and where it doesn't
 
----
+- **An LLM agent is an observer only.** It calls `agents/grokbot/observer-client.mjs`, which signs requests with HMAC credentials that the agent never sees. The server enforces scope, allowlists and k-anonymity no matter what the prompt says.
+- **No generated notification text.** Reminders choose from templates the app has pre-approved. Model output can only pick among whitelisted templates or choose `no_send`.
+- **Models are offline and fail closed.** Bandit policies must be signed by an operator before they load. A churn *probability* is only emitted when the model ships holdout and calibration evidence. Without that, the engine reports an uncalibrated risk *index* and labels it as one.
 
-# RIVERENGINE v2.8 — Retenção adaptativa e analytics confiável (QA)
+## Running locally
 
-**Estado:** integrações opcionais, desligadas por padrão. Sem implantações em produção.
-
-**Novidades:** Graphile Worker para telemetria durável (separada do push), MABWiser para treinamento offline, Statsmodels para avaliar testes A/B. Os três complementam o núcleo de retenção existente.
-
-Leia [INSTALACAO_V28.md](docs/INSTALACAO_V28.md) e [V28_ACCEPTANCE.md](docs/V28_ACCEPTANCE.md). O servidor Node e o Python precisam de instalações independentes. Registro externo indisponível neste ambiente: Graphile/MABWiser **não** foram instalados localmente. Statsmodels instalado e executado.
-
-# RIVERENGINE v2.7 — Contextual Smart Notifications
-
-**Marca oficial:** RIVERENGINE (antes TMNT Engine). **Versão:** 2.8.0. **Estado:** validação de QA; **não** implantada em produção.
-
-Sistema compartilhado de retenção e fidelização para aplicativos web, Android e iOS, executado em backend autenticado, independente de hospedagem. Suporta hábitos, missões, streaks, XP, notificações com consentimento, experimentos, iniciativas sociais e ofertas/cupões. Todos os módulos são opcionais por app.
-
-## Documento mestre
-
-[`RIVERENGINE.MD`](./RIVERENGINE.MD) descreve arquitetura, integrações e critérios de aceite. [`TMNT_ENGINE.MD`](./TMNT_ENGINE.MD) é somente uma referência histórica.
-
-## Testes locais
+Requirements: Node.js >= 22 and Python 3 (CI uses 3.12; verified locally with 3.13) for the offline statistics tests. PostgreSQL is optional: the test suites use in-memory and injected SQL adapters and need no database or credentials.
 
 ```bash
-npm test
-npm run smoke
-npm run check
-npm run db:verify-install
-npm run load:smoke
-npm run demo:http
+git clone https://github.com/raphaelribeirob/INSTANTENGINE.git
+cd INSTANTENGINE
+npm ci                                   # no runtime dependencies; peers are optional
+
+# keep the venv OUTSIDE the repo: check:manifest hashes every file in the tree
+python3 -m venv ../instantengine-venv && . ../instantengine-venv/bin/activate   # provides `python` for test:stats
+pip install -r python/requirements-retention.txt
+
+npm test                 # Node unit/contract tests + example bridge + legacy SDK suite
+npm run test:stats       # Python statistics / offline-model tests
+npm run db:verify-install  # migration chain + bootstrap reproducibility (static check)
+npm run check:manifest   # SHA-256 inventory of every shipped file
 ```
 
-## Backend Node (nome oficial)
+Optional: to apply the schema to a **local, disposable** PostgreSQL database (14+, with `pgcrypto` available), run the files in `migrations/` in order. Example with a database you created for this purpose:
 
-```js
-import { createRiverEngine } from '@riverthree/riverengine';
-import { createRiverEngineGateway, makeSignedRiverEngineRequest } from '@riverthree/riverengine/gateway';
-
-// Somente servidor autenticado; nunca expor DATABASE_URL, HMAC, nem chaves a clientes.
-const engine = createRiverEngine({ repository });
-const gateway = createRiverEngineGateway({ engine, nonceStore: repository, credentials });
+```bash
+for f in migrations/*.sql; do psql "$LOCAL_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done
 ```
 
-A API histórica `createTMNT`, `createTMNTGateway` e `makeSignedTMNTRequest` continua funcionando e usa exatamente o mesmo motor. Não foi publicado um pacote no npm; a importação com esse nome pressupõe instalação local ou publicação autorizada do pacote privado.
+Never commit a real `DATABASE_URL`. `.env.example` lists every variable, and all features that can send or delete are OFF by default.
 
-## Compatibilidade de instalações anteriores
+Demos (no network or credentials needed): `npm run demo:multiapp`, `npm run demo:smart-notifications`, `npm run demo:observer`, `npm run demo:churn`.
 
-- **Não** alterar funções/tabelas PostgreSQL com prefixo `r3_v1_`.
-- **Não** trocar o endpoint existente `POST /tmnt/v1/action` nem os headers `x-tmnt-*` nesta versão: o protocolo está assinado e o adaptador InstantStudy v2.3 depende dele.
-- **Não** trocar `TMNT_*` e `INSTANTSTUDY_TMNT_*` diretamente no ambiente, pois são variáveis operacionais legadas. Alias de nome de marca não equivale a migração de credenciais.
-- Manter a flag do InstantStudy **desativada** até instalar uma fonte real de identidade, retry durável, TLS, testes em dispositivos físicos e experimentos com usuários.
-- Alterações de documentação dos aplicativos ocorrem em branches/PRs de QA, sem merge automático.
-- Histórico técnico detalhado: [`docs/LEGACY_TMNT_README.md`](./docs/LEGACY_TMNT_README.md).
+## Test results
 
-## Critério de produção
+These numbers come from a local run on 2026-10-22 (Node v24.22.0, Python 3.13.5) and match the commit that adds this README:
 
-Aprovação da suíte não comprova notificações em iOS/Android nem aumento causal em D1/D7/D30. A integração efetiva com aplicativo e Neon em produção ainda exige validação de segurança, telemetria e recuperação de falhas.
+| Command | Result |
+|---|---|
+| `npm test`: `node --test test/*.test.mjs` (36 files) | **333 tests, 333 pass, 0 fail, 0 skipped, 0 todo** |
+| `npm test`: example backend bridge test | **4 tests, 4 pass, 0 fail, 0 skipped** |
+| `npm test`: legacy single-file SDK suite | **137 tests, 137 pass, 0 fail, 0 skipped** |
+| `npm run test:stats` (Python `unittest`) | **Ran 9 tests, OK** (0 skipped) |
+| `npm run db:verify-install` | **PASS**: bootstrap matches embedded SQL; 16 migration files in the expected order, with contract markers and no `DROP TABLE/SCHEMA/DATABASE` |
+| `npm run check:manifest` | **PASS**: SHA-256 manifest matches all shipped files |
 
-## PostHog A/B Experiments (v2.5+)
+In total, `npm test` runs **474 Node tests** (all passing) and `test:stats` runs **9 Python tests**. One extra check was done by hand and is not part of CI: all 16 migrations were applied in a single transaction to a local PostgreSQL 17.11, creating 33 tables and 37 functions in a scratch schema. The transaction was then rolled back.
 
-**New:** server-side PostHog A/B via `createRiverABExperiments`, persistent experiment variants in Neon and verified post-exposure conversion events. Feature is opt-in, backend-only and OFF by default. Requires verified consent and a configured PostHog multivariate feature flag. Existing legacy retention `holdout` contract remains unchanged. See [PostHog A/B Guide](docs/V25_POSTHOG_AB.md). Migration `0013_posthog_ab_experiments.sql` is additive. Does not constitute a launched PostHog experiment or production certification.
+CI (`.github/workflows/instantengine-qa.yml`) runs the same commands on every push with Node 22 and Python 3.12.
 
-## Foco 2.6: Retenção no modelo Duolingo
+## Limitations (honest list)
 
-**Prioridade:** retorno para realizar uma atividade real, qualidade de aprendizagem e progresso sustentável — não tempo de tela a qualquer custo. A camada comercial (ofertas, cupons, cashback) permanece no pacote por compatibilidade, mas fica **fora do roadmap ativo**. Os aplicativos só devem habilitar módulos relevantes.
+- **Not in production.** It hasn't run against live users, live Neon branches or real devices. `npm run db:verify-live` (a read-only Neon preflight) hasn't been run against a real database.
+- **No proof of retention impact.** The suites check safety and correctness, not D1/D7/D30 uplift. No randomized experiment with real users has been run.
+- **Push delivery hasn't been validated.** OneSignal/APNs/FCM delivery, callbacks and device behaviour haven't been tested end-to-end. Provider acceptance is not counted as delivery.
+- **The churn model is uncalibrated by default.** The heuristic index is not a probability. No validated model has been trained on real outcome labels.
+- **Much of the SQL is contract-tested, not executed.** Many storage tests check the SQL text and bound parameters through injected clients. Concurrency and RLS behaviour against a live PostgreSQL are untested.
+- **The legacy code is dense.** `legacy/R3ENGINE_v1.1.mjs` is a large single-file SDK, kept so older integrations stay compatible. Historical names (`createTMNT`, `/tmnt/v1/action`, `r3_v1_*`, `river_v1_*`) remain on purpose to keep the signed wire protocol and schema stable.
+- **Some docs are historical.** Several files in `docs/` are old acceptance and test reports, partly in Portuguese. Where they disagree with this README and the tests, the README and tests are correct.
 
-**Problemas da auditoria corrigidos nesta versão:**
+## Security
 
-1. Telemetria genérica e worker só enviam para PostHog quando o backend confirma analytics habilitado **e** consentimento analítico persistido, verificado e concedido. \`createPostHogEmitter()\` exige um verificador \`isEligible(scope)\`. Não confundir consentimento analítico com consentimento de push.
-2. Conversão A/B confere a variante persistida **antes** da inserção; memória e SQL do Neon exigem \`expectedVariant\` no próprio registro. Reenvios corretos não são perdidos devido a uma chamada com lista de variantes incorreta.
-3. \`reportDuolingoRetention()\` e \`createRiverABExperiments().reportRetention()\` geram D1/D7/D30 exatos (em dias **UTC**, apenas coortes maduras), um usuário por variante, verificação de SRM, intervalos exploratórios e alertas sem declarar eficácia causal. A consulta é **administrativa e só pode existir em backend autenticado**.
+The mapping uses the **OWASP Top 10:2025** and the **OWASP Top 10 for LLM Applications (2025)**. A control is listed only if an automated test exercises it. The test file and test name are given so you can check the claim. Anything else is marked **Not covered yet**.
 
-**Pendente:** outbox transacional para eventos PostHog e reenvio confiável, flag kill-switch remota em todo serviço, integração de identidade/Neon/PostHog em produção e testes com dispositivos/usuários. Os testes locais não garantem entrega de push ou ganho de retenção.
+### OWASP Top 10:2025
 
-Consulte [o playbook de retenção](docs/DUOLINGO_RETENTION_PLAYBOOK.md).
+| Category | Control | Test (file › name) |
+|---|---|---|
+| A01 Broken Access Control | Scope is bound on the server; subject spoofing and unauthorised admin actions are rejected | `test/gateway.test.mjs` › "scope is server bound; subject spoof and unauthorized admin actions are rejected" |
+| A01 | Tenant/app/environment isolation | `test/universal.test.mjs` › "stable holdout and isolation across tenants and environments"; `test/smart-notifications-v27.test.mjs` › "app/tenant isolation for decisions" |
+| A01 | Workers only claim jobs from allowed environments and apps | `test/worker-security.test.mjs` › "neon claims only explicitly allowed environments before touching queue", "same-environment jobs from unconfigured apps are not claimed" |
+| A02 Security Misconfiguration | Dangerous features are OFF by default; production needs a separate explicit flag | `test/worker.test.mjs` › "off by default, no provider configuration needed"; `test/posthog-ab.test.mjs` › "prod cannot be enabled without distinct explicit allowProduction flag"; `test/churn-purge.test.mjs` › "never executes a production purge without explicit production acknowledgement" |
+| A02 | Production refuses ephemeral nonce storage and plain HTTP | `test/gateway.test.mjs` › "production refuses ephemeral nonce storage even when signed credentials are valid", "production signing helper refuses plain HTTP"; `test/v21-adversarial.test.mjs` › "prod receiver rejects signed HTTP downgrade before consuming nonce" |
+| A03 Software Supply Chain Failures | No runtime dependencies; peers are optional. Dependency scanning, SBOM and pinned CI actions are **Not covered yet** | n/a |
+| A04 Cryptographic Failures | HMAC request signing with constant-time comparison; analytics IDs are keyed HMAC pseudonyms, never unsalted hashes | `test/worker.test.mjs` › "safe auth timing comparison"; `test/worker-security.test.mjs` › "PostHog uses HMAC with secret and scope, never unsalted hash", "PostHog refuses to transmit without adequate secret" |
+| A05 Injection | All SQL goes through bound parameters or tagged templates | `legacy/R3ENGINE_v1.1.mjs` › "all SQL adapter operations use bind parameters; no untrusted user interpolation"; `test/observer-neon.test.mjs` › "all SQL observation queries use scoped, parameterized selects"; `test/duolingo-v20.test.mjs` › "Neon adapter exposes additive SQL contracts without leaking raw SQL interpolation" |
+| A06 Insecure Design | Every send passes deterministic safety policy (consent, holdout, quiet hours, cooldown, fatigue) | `test/retention.test.mjs` › "BLOCKS no verified consent and holdout", "BLOCKS quiet hours with individual timezone", "BLOCKS 24h provider cooldown and weekly cap"; `test/smart-notifications-v27.test.mjs` › "do not nag after four matured provider accepts without verified value; openings cannot count" |
+| A07 Authentication Failures | Forged, expired or replayed signed requests are rejected, including a concurrent replay race | `test/gateway.test.mjs` › "reject forged payload, modified subject, forged app, wrong signature", "reject expired and future request timestamps", "exact replay of signed request cannot run twice, including simultaneous race"; `test/worker.test.mjs` › "cron denies missing/invalid secret and wrong method" |
+| A08 Software or Data Integrity Failures | SHA-256 release manifest; tampered or unsigned model policies are refused | `test/manifest-integrity.test.mjs` › "SHA256 manifest exactly matches shipped INSTANTENGINE source tree and version"; `test/bandit-policy-v28.test.mjs` › "tampered policy signature fails closed", "unsigned/invalid model refuses activation" |
+| A09 Security Logging & Alerting Failures | **Not covered yet.** There is no tested audit logging or alerting pipeline. | n/a |
+| A10 Mishandling of Exceptional Conditions | Fails closed on malformed input, oversized bodies and dependency failures | `test/gateway.test.mjs` › "non-JSON and oversized body fail closed without consuming nonce", "malformed method, query, nonce and stale credentials fail closed"; `test/worker.test.mjs` › "worker fails closed if database finalization fails"; `test/duolingo-retention-v26.test.mjs` › "F1: emitter fails closed when eligibility provider fails (no outbound HTTP)" |
 
+### OWASP Top 10 for LLM Applications (2025)
 
-## Novidade v2.7: notificações realmente contextuais
+The only LLM-facing part of this repo is the agent observer surface (`src/integrations/grokbot-observer.mjs` and `agents/grokbot/`). The repo itself does not call any LLM.
 
-O backend pode chamar `createRiverEngine({repository}).planSmartReminder()` em um agendador autenticado para **decidir se deve enfileirar ou não**, não para prometer entrega em dispositivo. O método usa consentimento verificável, holdout, quiet hours, metas concluídas, streak, histórico de atividades verificadas, limite semanal e fadiga por ausência de retorno. Um template só é elegível se seu `intent` corresponder ao contexto (`streak`, `restart`, `goal`) ou se tiver intenção `general`. Mensagens são **pré-aprovadas pelo aplicativo**; nenhum texto de notificação é gerado livremente por IA.
+| Category | Control | Test (file › name) |
+|---|---|---|
+| LLM01 Prompt Injection | **Not covered yet.** The prompt and agent runtime live outside this repo. The server-side controls below limit the damage an injected prompt can do, but no prompt-injection test exists. | n/a |
+| LLM02 Sensitive Information Disclosure | The agent gets only k-anonymous aggregates and never subject IDs | `test/grokbot-observer.test.mjs` › "catalog returns only event definitions, never subject IDs", "overview returns k-anonymous daily counts", "churn is read-only, cohort-suppressed and never reveals a single subject" |
+| LLM03 Supply Chain | **Not covered yet.** | n/a |
+| LLM04 Data and Model Poisoning | Applies to the offline ML models (not LLMs): models need operator signatures and calibration evidence | `test/bandit-policy-v28.test.mjs` › "tampered policy signature fails closed"; `test/churn-prediction.test.mjs` › "rejects model without holdout validation or calibration" |
+| LLM05 Improper Output Handling | Model output can only choose whitelisted, intent-matching templates and never bypasses safety denials | `test/bandit-policy-v28.test.mjs` › "operator-signed offline model only changes whitelisted template", "model never overrides base safety deny"; `test/bandit-engine-v28.test.mjs` › "real engine refuses wrong-intent template recommendation" |
+| LLM06 Excessive Agency | The agent's tools are read-only and scoped; it can't widen scope or reach other apps | `test/grokbot-observer.test.mjs` › "write operation rejected (no notifications or config writes)", "scope cannot be changed by agent", "cross-app scoped token cannot access other app", "experiments restricted by scope allowlist and suppress low-variant samples" |
+| LLM07 System Prompt Leakage | **Not covered yet.** The skill prompt contains no secrets by design (credentials stay in the trusted tool process), but no test covers this. | n/a |
+| LLM08 Vector and Embedding Weaknesses | Not applicable: there is no vector store or RAG. | n/a |
+| LLM09 Misinformation | The observer reports insufficient data instead of inventing metrics, and the churn index is never labelled as a probability | `test/grokbot-observer.test.mjs` › "unconfigured apps do not hallucinate retention metrics", "diagnostics use conservative deterministic evidence"; `test/churn-prediction.test.mjs` › "uncalibrated index is NOT mislabeled as return probability" |
+| LLM10 Unbounded Consumption | **Not covered yet** for the observer API, which has no tested rate limit or quota. The push worker's batch cap is tested (`test/worker.test.mjs` › "worker imposes max batch size") but does not limit agent usage. | n/a |
 
-A escolha de horário pode ser otimizada automaticamente quando há pelo menos seis observações maduras por hora e evidência de atividades verificadas; a preferência marcada como `user` nunca é alterada. A execução agendada depende **do backend do aplicativo** — não existe um daemon autônomo ativado pelo pacote. Respostas: `queued` = reserva na fila, `do_not_send` = supressão; nenhuma significa entrega confirmada.
+## License
 
-```js
-const plan=await engine.planSmartReminder({
-  tenant:'river',app:'study',environment:'test',subject:verifiedSubject,
-  campaignKey:'daily_20261021',
-  variants:[{id:'habit_safe',intent:'streak'},
-            {id:'restart_gentle',intent:'restart'},
-            {id:'neutral_tip',intent:'general'}]
-});
-```
-
-**Desenvolvimento local:** `npm run demo:smart-notifications`. O worker valida novamente consentimento e regras na hora de enviar; possui proteção adicional contra 4+ notificações maduras sem atividade de valor em 14 dias. O mecanismo não contorna a desativação padrão `R3_PUSH_ENABLED=false`. Veja [`docs/V27_ACCEPTANCE.md`](docs/V27_ACCEPTANCE.md) e [`docs/V27_TEST_REPORT.md`](docs/V27_TEST_REPORT.md).
-
-**Limitações:** notificações de dispositivo OneSignal e callbacks de entrega ainda não foram homologados; não há prova de ganho real D1/D7/D30, nem autotuning autônomo de uma base de usuários sem agendador integrado. Validação SQL direta em Neon desta revisão não foi concluída porque a ferramenta externa bloqueou a consulta; os contratos foram testados com SQL parametrizado injetado.
-
-## QA e implantação opcional do Grokbot
-
-- Guia para instalar o agente: [`docs/GROKBOT_ROUTINE.md`](docs/GROKBOT_ROUTINE.md).
-- Arquivos de skill: [`agents/grokbot/SKILL.md`](agents/grokbot/SKILL.md), [`agents/grokbot/observer-client.mjs`](agents/grokbot/observer-client.mjs).
-- API assinada: `POST /riverengine/v1/observe`, sem alterações de dados. Comandos: `catalog`, `overview`, `retention`, `experiment`, `diagnose`, `pipeline`.
-- `npm run worker:value-outbox` é **seguro por padrão e encerra sem processar quando a flag está desligada**. Admite QA com credenciais somente de backend. Se o serviço PostHog não estiver ativo, as tentativas de entrega permanecem pendentes/reprocessáveis.
-- Os registros de negócio devem ser verificados pelo backend de cada app usando `createRiverAppInstrumentation` (padrão OFF). Uma instalação do Grokbot não gera eventos reais automaticamente sem esses adaptadores.
+No license file is included yet. All rights reserved by the author unless a license is added.

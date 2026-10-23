@@ -25,7 +25,7 @@ const gateway = createInstantEngineGateway({engine,nonceStore,credentials});
 1. **Inactivity risk:** `src/storage/churn-neon.mjs` compares the UTC **calendar date** of the last verified engagement event with `asOf` UTC. Late-yesterday activity now yields 1 inactive day, not 0. Test: `test/churn-gap-v31.test.mjs`.
 2. **Independent retention purge:** `bin/run-churn-purge.mjs` executes `createInstantChurnNeonRepository().purgeExpired()`. It does not depend on churn prediction, and cannot send notifications. Defaults OFF. Run it on a scoped, authenticated backend scheduler **only after manual approval**, ideally with a database role that has minimal DELETE access. It deletes engagement events older than 90 days and scores older than 30 days or whose current consent was withdrawn, as codified by the existing adapter. Production requires extra acknowledgment.
 3. **Manifest integrity:** `scripts/verify-manifest.mjs` checks SHA-256 of all source files, recorded sizes, no extras and version identity. `npm run check:manifest` verifies; operators must use `node scripts/verify-manifest.mjs --write` only when preparing an intended new release.
-4. **Branding:** old docs are archived for historical context, while `INSTANTENGINE.MD` is the canonical master. `RIVERENGINE.MD` is retained as a legacy reference.
+4. **Documentation:** old docs are archived for historical context. The internal master specifications are no longer shipped in this repository; `README.md` is the public entry point.
 
 ## Retention purge configuration
 

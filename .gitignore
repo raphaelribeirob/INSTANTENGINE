@@ -5,3 +5,9 @@ node_modules/
 coverage/
 *.log
 .DS_Store
+__pycache__/
+
+# Internal master specifications are kept outside this public repository.
+/INSTANTENGINE.MD
+/RIVERENGINE.MD
+/TMNT_ENGINE.MD

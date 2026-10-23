@@ -3,7 +3,7 @@
   "version": "3.1.0",
   "package_name": "@riverthree/instantengine",
   "status": "source QA, not deployed",
-  "file_count_excluding_manifest": 166,
+  "file_count_excluding_manifest": 164,
   "files": [
     {
       "path": ".env.example",
@@ -17,8 +17,8 @@
     },
     {
       "path": ".gitignore",
-      "sha256": "ac112adb82f08516ead965e308488f312d7ce87435f7c60e34927822f30be94f",
-      "bytes": 66
+      "sha256": "38a9313622a135a507e8607ceb102b1874cd73ebbe68aca9ce3f91209952cdf7",
+      "bytes": 204
     },
     {
       "path": "agents/grokbot/observer-client.mjs",
@@ -107,8 +107,8 @@
     },
     {
       "path": "docs/LEGACY_TMNT_MASTER.md",
-      "sha256": "4e276f14b8ae7117d5c3a78b8b3cbfa48bb85d99496c02c13c6ed65e56b48235",
-      "bytes": 28183
+      "sha256": "e98a69db91a042d6e4a4c09383a96de337af5d377f60dba4e0b4ae1f0c19c32c",
+      "bytes": 28239
     },
     {
       "path": "docs/LEGACY_TMNT_README.md",
@@ -172,8 +172,8 @@
     },
     {
       "path": "docs/V22_ACCEPTANCE.md",
-      "sha256": "1738d1bead833ff23c4898fc87797680d2cdb54b45926ab89187c0f58de4a522",
-      "bytes": 1280
+      "sha256": "535aa35a50bc802362c35e0fb9adcab93d324ba24e0528566fb61f404c3cc742",
+      "bytes": 1291
     },
     {
       "path": "docs/V22_INSTALL.md",
@@ -272,8 +272,8 @@
     },
     {
       "path": "docs/V31_INSTANTENGINE_MIGRATION.md",
-      "sha256": "c72fe0bd6875c6e595e0a7df3469145931c1b4c20a3f97252428d2d013f44ed2",
-      "bytes": 4988
+      "sha256": "cbaf10f8b99ed461430a0fb9c094cd1120be8ac68632c37d43868586a2362d1f",
+      "bytes": 5007
     },
     {
       "path": "docs/V31_TEST_REPORT.md",
@@ -329,11 +329,6 @@
       "path": "examples/smart-notification-qa.mjs",
       "sha256": "4c0b2c4c8c8c03c050676ba388b2d74afcd740de2e75a67c3ffda098aeaf0783",
       "bytes": 1412
-    },
-    {
-      "path": "INSTANTENGINE.MD",
-      "sha256": "ca5188cc1778b90aafe84e586346920924230a87d91cce29c324f552621074a2",
-      "bytes": 20186
     },
     {
       "path": "integrations/instantstudy/package.json",
@@ -456,6 +451,11 @@
       "bytes": 2321
     },
     {
+      "path": "package-lock.json",
+      "sha256": "45d540a9d3e5681f56124c1bebd03e195ce2e6ec587fbcc4941c67512e2f6665",
+      "bytes": 670
+    },
+    {
       "path": "package.json",
       "sha256": "f326b02c2aacfa3ebd1977359e3ef8a2c33873930a2306ef77555ed87460d76b",
       "bytes": 4977
@@ -492,13 +492,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "ab535a6120bd5fda1ba8c59a386cb7b1d401bc07b21691954fc4889e3f602ff8",
-      "bytes": 10784
-    },
-    {
-      "path": "RIVERENGINE.MD",
-      "sha256": "b81a682d32d6ed6ff72a27d4eb88091b2e457b34f0e6889015db9a1a2aacb8dc",
-      "bytes": 18853
+      "sha256": "3b2c112807ff15a823169a37d12b8f6f11d1a9505f6df42079eaa99a8afdf766",
+      "bytes": 16382
     },
     {
       "path": "scripts/build-bootstrap.mjs",
@@ -742,8 +737,8 @@
     },
     {
       "path": "test/instantengine-identity.test.mjs",
-      "sha256": "ae6f6e8f71aece705794a0a9915c4c97848748de6a5183434870fe39df2183c8",
-      "bytes": 1917
+      "sha256": "58acb9634ec8fb08d0d3009d158b14465465451a63bd83100aca7afa7e25b5a7",
+      "bytes": 1980
     },
     {
       "path": "test/instantstudy-bridge.test.mjs",
@@ -782,8 +777,8 @@
     },
     {
       "path": "test/riverengine-brand.test.mjs",
-      "sha256": "8cf536dbb7bffb45b6cfdb075c37ac0f76aded307661204b97934b2ef1edf76e",
-      "bytes": 1006
+      "sha256": "5d3b4f81a91ef0c89e403e3d64263d7a7b87fc929b8ad680b2d65982d1a35c22",
+      "bytes": 1016
     },
     {
       "path": "test/smart-notification-neon-contract.test.mjs",
@@ -829,11 +824,6 @@
       "path": "test/worker.test.mjs",
       "sha256": "eea799e07d4626e723009e198270dd90742b483746245d04ef5cdfeb04a72f8b",
       "bytes": 8283
-    },
-    {
-      "path": "TMNT_ENGINE.MD",
-      "sha256": "09ff3b094c4a812dc68e832c4f952a166b54775b77eeda2ab0684ef1fedaa4ee",
-      "bytes": 326
     }
   ]
 }

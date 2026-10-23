@@ -4,7 +4,7 @@
 - `npm run smoke`: **21/21 HTTP**, local, `DATABASE_URL` não configurada, real push desabilitado.
 - `npm run check`: PASS.
 - `npm run db:verify-install`: PASS (0000 a 0012).
-- Neon QA (somente branch `br-twilight-breeze-b5bnh1z1`): instalação do esquema vazio `tmnt_v22_clean_qa`, **27 tabelas, 36 funções**.
+- Neon QA (somente branch `<redacted>`): instalação do esquema vazio `tmnt_v22_clean_qa`, **27 tabelas, 36 funções**.
 - Neon QA recém-instalado: app+eventos, meta 3, missão diária recompensada uma vez, reconciliação, streak 2, XP 35, tenant isolado.
 - GitHub QA branches criadas em 6 apps; documentação de integração adicionada sem alterar a branch principal nem iniciar integração runtime.
 - `@neondatabase/serverless` ausente neste runtime: Node SDK→Neon, TLS de produção e OneSignal físico não testados.

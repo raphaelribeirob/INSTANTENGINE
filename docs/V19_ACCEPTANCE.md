@@ -9,7 +9,7 @@
 | Mudança da meta atualiza `goalMet` | **PASS** | Teste de atualização de meta sem novos eventos |
 | Mesmo evento UUID não gera XP duplicado | **PASS** | API `track` em teste moderno |
 | Evento anterior ao último dia não altera streak/XP | **PASS** | Teste de evento fora de ordem |
-| PostgreSQL e memória concordam em calendários locais | **PASS para 3 cenários QA** | Neon branch `br-twilight-breeze-b5bnh1z1` (São Paulo, Tóquio, Nova York) |
+| PostgreSQL e memória concordam em calendários locais | **PASS para 3 cenários QA** | Neon branch `<redacted>` (São Paulo, Tóquio, Nova York) |
 | Estado de hábito do SDK Neon normalizado | **PASS contrato com SQL injetado** | DATE/BIGINT/goalMet; **driver real ainda não instalado** |
 | Suíte antiga e moderna sem regressão | **PASS 288/288** | Log `TMNT_v19_FINAL_TEST.log` |
 | Smoke HTTP | **PASS 21/21** | Log `TMNT_v19_FINAL_SMOKE.log` (sem DATABASE_URL) |

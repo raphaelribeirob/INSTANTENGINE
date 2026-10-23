@@ -17,7 +17,7 @@
 
 ## Prova de paridade no Neon
 
-Branche QA `br-twilight-breeze-b5bnh1z1`, projeto `little-frost-61962118`. App sintético `tmnt19/timezoneqa/test`. Três usuários em `America/Sao_Paulo`, `Asia/Tokyo`, `America/New_York`. Para todos, duas atividades no mesmo dia local (inclusive travessia de meia-noite UTC e fim de DST) produziram `streak=1`, `today_count=2`, `daily_goal=3`, `xp=20`, sem alterar o banco principal.
+Branche QA `<redacted>`, projeto `<redacted>`. App sintético `tmnt19/timezoneqa/test`. Três usuários em `America/Sao_Paulo`, `Asia/Tokyo`, `America/New_York`. Para todos, duas atividades no mesmo dia local (inclusive travessia de meia-noite UTC e fim de DST) produziram `streak=1`, `today_count=2`, `daily_goal=3`, `xp=20`, sem alterar o banco principal.
 
 ## O que não se deve inferir
 

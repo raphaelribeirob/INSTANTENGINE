@@ -13,7 +13,7 @@
 
 ## PostgreSQL QA
 
-**Projeto:** `little-frost-61962118`; **ramificação isolada de homologação:** `br-twilight-breeze-b5bnh1z1`.
+**Projeto:** `<redacted>`; **ramificação isolada de homologação:** `<redacted>`.
 
 - Migração SQL aditiva `0009` + `0010` instalada e testada, sem tocar no banco principal.
 - Missão diária de duas atividades: progress 2/2; única recompensa = 20 XP; duplicata rejeitada.

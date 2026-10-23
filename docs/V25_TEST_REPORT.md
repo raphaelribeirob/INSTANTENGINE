@@ -15,7 +15,7 @@
 
 ## Evidência no Neon QA
 
-- Projeto: `little-frost-61962118`, branch QA `br-twilight-breeze-b5bnh1z1`, esquema isolado `tmnt_v22_clean_qa` (não produção).
+- Projeto: `<redacted>`, branch QA `<redacted>`, esquema isolado `tmnt_v22_clean_qa` (não produção).
 - Migração 0013 instalada: 3 tabelas e 1 índice criados.
 - Atribuição `daily-goal-v1` mantida em `test` apesar de segunda tentativa de inserir `control`.
 - Conversão `app_opened` (evento sem valor) rejeitada.

@@ -11,7 +11,7 @@
 | Production, churn batch and push delivery OFF by default | PASS SOURCE QA | v3.0 flags and runner |
 | In-app notification consent reactivation user-initiated/cooldown | PASS PURE POLICY | Advisory-only planner tests; not a UI deployment |
 | Grokbot sees only scoped aggregate, suppresses cells <20 | PASS UNIT | HMAC + read-only observer tests |
-| Migration 0015 additive, both tables in dedicated Neon QA schema | PASS QA SCHEMA | R3ENGINE-staging branch `br-twilight-breeze-b5bnh1z1`, schema `tmnt_v22_clean_qa` |
+| Migration 0015 additive, both tables in dedicated Neon QA schema | PASS QA SCHEMA | R3ENGINE-staging branch `<redacted>`, schema `tmnt_v22_clean_qa` |
 | Core Node/legacy/bridge regression | PASS | 324 Node + 4 bridge + 137 legacy |
 | Python trainer offline regression | PASS | 9 tests |
 | Legacy HTTP smoke + migration chain | PASS | 21/21 smoke and 16 migration-file contract check |

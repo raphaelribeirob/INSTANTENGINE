@@ -84,7 +84,7 @@ export function scoreChurnRisk({features,model=null}={}){
 export function createChurnDailyJob({repository,enabled=false,allowProduction=false,model=null,now=()=>new Date()}={}){
  if(!repository||typeof repository.listChurnFeatures!=='function'||typeof repository.upsertChurnScore!=='function'||typeof enabled!=='boolean'||typeof allowProduction!=='boolean')throw new TypeError('Scoped churn repository required');
  if(model)validateModel(model);
- return Object.freeze({async run({tenant,app,environment,asOf,pageSize=250,maxPages=100}={}){
+ return Object.freeze({async run({tenant,app,environment,asOf,pageSize=250,maxPages=100,afterSubject=''}={}){
   const scope=validateChurnScope({tenant,app,environment});
   const clock=new Date(now());
   if(!Number.isFinite(clock.getTime()))throw new TypeError('Invalid UTC job clock');
@@ -94,24 +94,28 @@ export function createChurnDailyJob({repository,enabled=false,allowProduction=fa
   if(scoreDay>=todayUtc)throw new TypeError('Churn score day must be a completed UTC day');
   if(!enabled)return {status:'disabled',processed:0};
   if(environment==='prod'&&!allowProduction)return {status:'production_disabled',processed:0};
-  if(!Number.isInteger(pageSize)||pageSize<1||pageSize>500||!Number.isInteger(maxPages)||maxPages<1||maxPages>10000)throw new TypeError('Invalid pagination');
-  let afterSubject='',processed=0,pages=0,mayHaveMore=false;
+  if(!Number.isInteger(pageSize)||pageSize<1||pageSize>500||!Number.isInteger(maxPages)||maxPages<1||maxPages>10000||(afterSubject!==''&&!SUBJECT.test(afterSubject)))throw new TypeError('Invalid pagination or cursor');
+  let cursor=afterSubject,processed=0,skipped=0,pages=0,mayHaveMore=false;
   for(;pages<maxPages;){
-   const batch=await repository.listChurnFeatures({...scope,asOf:scoreDay,afterSubject,limit:pageSize});
+   const batch=await repository.listChurnFeatures({...scope,asOf:scoreDay,afterSubject:cursor,limit:pageSize});
    pages++; // Count actual repository page reads, including empty terminal reads.
    if(!Array.isArray(batch)||batch.length>pageSize)throw new TypeError('Invalid repository page');
    if(batch.length===0){mayHaveMore=false;break;}
-   for(const row of batch){if(!SUBJECT.test(row?.subject??'')||row.subject<=afterSubject)throw new TypeError('Unordered subject pagination');
+   for(const row of batch){if(!SUBJECT.test(row?.subject??'')||row.subject<=cursor)throw new TypeError('Unordered subject pagination');
     const scored=scoreChurnRisk({features:row.features,model});
-    await repository.upsertChurnScore({...scope,subject:row.subject,asOf:scoreDay,score:scored});
-    afterSubject=row.subject;processed++;
+    const persisted=await repository.upsertChurnScore({...scope,subject:row.subject,asOf:scoreDay,score:scored});
+    // Consent can be withdrawn between the feature read and guarded SQL upsert.
+    if(persisted===true)processed++;
+    else if(persisted===false)skipped++;
+    else throw new TypeError('Churn score repository must return a boolean');
+    cursor=row.subject;
    }
    // A full final page may have more subjects. We deliberately avoid an extra
    // query beyond maxPages: hasMore is conservative at the page cap.
    mayHaveMore=batch.length===pageSize;
    if(!mayHaveMore)break;
   }
-  return {status:'ok',asOf:scoreDay,processed,pages,hasMore:mayHaveMore,modelVersion:model?.version??'river_heuristic_v1',notificationsSent:0};
+  return {status:'ok',asOf:scoreDay,processed,skipped,pages,hasMore:mayHaveMore,nextCursor:mayHaveMore?cursor:null,modelVersion:model?.version??'river_heuristic_v1',notificationsSent:0};
  }});
 }
 

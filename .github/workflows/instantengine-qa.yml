@@ -17,6 +17,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Verify reproducible Node installation
+        run: npm ci --omit=optional --ignore-scripts
       - name: Install optional offline test dependencies
         run: python -m pip install -r python/requirements-retention.txt
       - name: Verify package manifest and syntax
@@ -33,6 +35,8 @@ jobs:
           npm run db:verify-install
           npm run smoke
           npm run test:identity
+      - name: Verify release readiness, signed ML and cursor regression gates
+        run: npm run check:readiness
       - name: Verify churn job UTC and pagination regression gates
         run: node --test test/churn-job-regression.test.mjs
       - name: Verify independent churn and purge are OFF by default

@@ -1,9 +1,9 @@
 {
   "product": "INSTANTENGINE",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "package_name": "@riverthree/instantengine",
   "status": "source QA, not deployed",
-  "file_count_excluding_manifest": 165,
+  "file_count_excluding_manifest": 173,
   "files": [
     {
       "path": ".env.example",
@@ -12,8 +12,8 @@
     },
     {
       "path": ".github/workflows/instantengine-qa.yml",
-      "sha256": "96c77b6062fb4857c156f5a6c3b6cefc2078f1074d1f6f7c6bc6e12e6064d338",
-      "bytes": 1222
+      "sha256": "ed15ecde017c4e6b9d71a8c0f02376504a02a5f4ca3b9bdfb617f376a4ade7ef",
+      "bytes": 1442
     },
     {
       "path": ".gitignore",
@@ -47,8 +47,8 @@
     },
     {
       "path": "bin/run-churn.mjs",
-      "sha256": "97f9f50d738191065af90256109ceba4b64e23f037c8f46ba7a9d0495ba9f8c8",
-      "bytes": 1460
+      "sha256": "b88981f90ef31951030dab5aa6c8b054997ea164341999fd848c49ffb36db33b",
+      "bytes": 1949
     },
     {
       "path": "bin/run-value-outbox.mjs",
@@ -109,6 +109,11 @@
       "path": "docs/LEGACY_TMNT_README.md",
       "sha256": "34ece59be712addddc4d69f162e7e24c7d7a4da42672daba4d3df4bc99379895",
       "bytes": 26620
+    },
+    {
+      "path": "docs/READINESS_RUNBOOK.md",
+      "sha256": "26c6e46d6f6f8877173ddbaa378167b9153f6f17a6ee8db918ef25b6f9dfc6ab",
+      "bytes": 4039
     },
     {
       "path": "docs/STREAK_RECOVERY.md",
@@ -452,13 +457,13 @@
     },
     {
       "path": "package-lock.json",
-      "sha256": "3041e074632697f0c797a079e8e3317e7b12d4625e2687b0df7513ba85372e35",
+      "sha256": "afb9d267587be49d9bcbd70db6e4c3335dbf8a5944e16b56717e870ddc9be304",
       "bytes": 670
     },
     {
       "path": "package.json",
-      "sha256": "f108b8b6de5d7d49f923f25df1323474ae05412c2afd74ec9bb333f292f1b3db",
-      "bytes": 4977
+      "sha256": "7822eaf832b2829c0835096e9f1a0346d38a2d6e027e509622b8ff1a05538c1a",
+      "bytes": 5253
     },
     {
       "path": "python/ab_statsmodels.py",
@@ -492,13 +497,18 @@
     },
     {
       "path": "README.md",
-      "sha256": "eb07b9b695030f567e86683ba1927539840e2d09d756d8ec4161ed3174240d2a",
-      "bytes": 17122
+      "sha256": "f18e8d20824d119bc10eab779b8fd78f9107e2e2bc576501744da633f03bef4d",
+      "bytes": 17579
     },
     {
       "path": "scripts/build-bootstrap.mjs",
       "sha256": "31e5555f197e1806c31291ef8b9feac26021203f8aaf7547f5c49343303f9cfc",
       "bytes": 1574
+    },
+    {
+      "path": "scripts/check-staging-security.mjs",
+      "sha256": "914867bbe425b8870e0303cd049207ae7d4fe8b4df63afc3ad98c743ed461e9a",
+      "bytes": 1866
     },
     {
       "path": "scripts/load-smoke.mjs",
@@ -509,6 +519,11 @@
       "path": "scripts/sign-bandit-policy.mjs",
       "sha256": "f53c5657891974de634b523ed7af365bd787e5172361fb0b59b7bc67d86059e8",
       "bytes": 763
+    },
+    {
+      "path": "scripts/sign-churn-model.mjs",
+      "sha256": "8dbc373ef1eee154424f0123bbd0fb7f37017d5bb462aff7bbe50d46341c507c",
+      "bytes": 754
     },
     {
       "path": "scripts/verify-install.mjs",
@@ -532,8 +547,8 @@
     },
     {
       "path": "src/churn-prediction.mjs",
-      "sha256": "f413101b13f8594a3e3f5b8e79dd662ec5d9fb124e2c203d71af784633d6d463",
-      "bytes": 11176
+      "sha256": "42e71c54c74ca4a025261198e5b9c71efdb5b33a2bf1319d2990df2b7f9b5fc9",
+      "bytes": 11545
     },
     {
       "path": "src/commerce.mjs",
@@ -569,6 +584,11 @@
       "path": "src/integrations/bandit-policy.mjs",
       "sha256": "0441fabdc0334e535b21b75caa04e55541f567ed13fbed55fc2a3c7843697ff7",
       "bytes": 3069
+    },
+    {
+      "path": "src/integrations/churn-model-signature.mjs",
+      "sha256": "6818411e20f5b6f72d28e355c37a1bdc6b48569c5f7cb57f0deedb5ebc7c3eff",
+      "bytes": 1015
     },
     {
       "path": "src/integrations/graphile-worker.mjs",
@@ -614,6 +634,11 @@
       "path": "src/smart-notifications.mjs",
       "sha256": "6325e69f12ab993d48a4d2f4503a8e0da70aa2fac8e9b9cd7a533f9532bcfeda",
       "bytes": 4072
+    },
+    {
+      "path": "src/staging-readiness.mjs",
+      "sha256": "50f3664f001f9c355ce497043041233abd48be2f39c711b324beffd9f230c3dd",
+      "bytes": 1055
     },
     {
       "path": "src/storage/churn-neon.mjs",
@@ -676,6 +701,11 @@
       "bytes": 1673
     },
     {
+      "path": "test/churn-cursor-regression.test.mjs",
+      "sha256": "c995174d18e0df7824fa5d38d50fdf71118bca163ae01ebc5f66ee37456b0236",
+      "bytes": 2011
+    },
+    {
       "path": "test/churn-gap-v31.test.mjs",
       "sha256": "3a1b5f6fab8769c1c3b4c5d179a6907c35bad9e41a5124c6ebfda66a788fe2c4",
       "bytes": 1091
@@ -684,6 +714,11 @@
       "path": "test/churn-job-regression.test.mjs",
       "sha256": "81ca850e33b560bbe445372be2a209b0df0707e50adb94658fe7c0e8c7016e3a",
       "bytes": 4331
+    },
+    {
+      "path": "test/churn-model-signature.test.mjs",
+      "sha256": "af42666d292e6e47d803ffcafb9f1174527d268b406e639931e46e919d29d928",
+      "bytes": 1568
     },
     {
       "path": "test/churn-neon-contract.test.mjs",
@@ -742,7 +777,7 @@
     },
     {
       "path": "test/instantengine-identity.test.mjs",
-      "sha256": "cfc4102e793555cb10956d39cceb823892c2b1bc3b630571b56e7606a5fdcde9",
+      "sha256": "69c57558ba9c5013eb43089acf87f18876250b1c139aa794f7e3aa8a3ff05568",
       "bytes": 2009
     },
     {
@@ -752,7 +787,7 @@
     },
     {
       "path": "test/manifest-integrity.test.mjs",
-      "sha256": "bb55c43c69a623d6075a7aea1acc5b5642d3c447d52d3d067ae453b4215341c6",
+      "sha256": "f228c96f74b3e6ff3917eb4a64bc20b1e8c00d29d2632f1c1d5c0c073d9b92f3",
       "bytes": 682
     },
     {
@@ -782,7 +817,7 @@
     },
     {
       "path": "test/riverengine-brand.test.mjs",
-      "sha256": "00fcc43b03b0450178b03d0a053540dab56f26036f23b3ad1f859fdc5b90a118",
+      "sha256": "525463e4a5acd114af544cb8f82d1143b5be91f4ae483c366fc2f9b23b20e73b",
       "bytes": 1016
     },
     {
@@ -799,6 +834,11 @@
       "path": "test/social.test.mjs",
       "sha256": "f7dca0e39d76720a044ff93c7d0fa272b06951e8d434f71c6915eed87fbe48f5",
       "bytes": 6562
+    },
+    {
+      "path": "test/staging-readiness.test.mjs",
+      "sha256": "d7f2abf06e05c73740963995b22f00eb37291eaf9cff8926d8c679bd08dfe06b",
+      "bytes": 1418
     },
     {
       "path": "test/storage-contract.test.mjs",

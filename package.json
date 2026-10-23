@@ -1,6 +1,6 @@
 {
   "name": "@riverthree/instantengine",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "INSTANTENGINE — consent-first multi-app retention, churn QA and intelligent notification policies (former RIVERENGINE)",
   "private": true,
   "type": "module",
@@ -58,6 +58,9 @@
     "worker:churn": "node bin/run-churn.mjs",
     "worker:purge": "node bin/run-churn-purge.mjs",
     "check:manifest": "node scripts/verify-manifest.mjs",
+    "readiness:staging": "node scripts/check-staging-security.mjs",
+    "ml:sign-churn-model": "node scripts/sign-churn-model.mjs",
+    "check:readiness": "node --test test/staging-readiness.test.mjs test/churn-cursor-regression.test.mjs test/churn-model-signature.test.mjs",
     "test:identity": "node --test test/instantengine-identity.test.mjs test/churn-gap-v31.test.mjs test/churn-purge.test.mjs test/manifest-integrity.test.mjs"
   },
   "peerDependencies": {

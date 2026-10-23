@@ -1,5 +1,7 @@
 # INSTANTENGINE: consent-first retention engine for multi-app backends
 
+**v3.1.2 readiness hardening:** resumable churn scoring across bounded pages, consent-race-safe score counts, and an HMAC verification gate for operator-approved churn model files loaded by the worker. Includes a read-only Neon staging catalog preflight that fails on missing or unprotected retention tables. This is not proof of tenant isolation or permission safety; see [readiness runbook](docs/READINESS_RUNBOOK.md). Production remains OFF by default.
+
 INSTANTENGINE is a Node.js (ESM) and PostgreSQL retention engine. Several apps can share it from their own authenticated backends. It covers habits and streaks, contextual reminder planning, A/B experiment reporting, a transparent churn-risk index, and a **read-only, privacy-preserving tool surface for an LLM agent** that analyses retention data.
 
 > **Status: source QA only. It is not deployed to production.** No real users, notifications, customer data or external AI models were connected in any of the test runs described here.

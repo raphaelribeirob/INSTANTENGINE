@@ -175,4 +175,6 @@ The only LLM-facing part of this repo is the agent observer surface (`src/integr
 
 ## License
 
-No license file is included yet. All rights reserved by the author unless a license is added.
+Copyright (c) 2026 Raphael Ribeiro. **All rights reserved.**
+
+This repository has no open-source license. It is public so the code can be read as a portfolio piece. No permission is granted to use, copy, modify or redistribute it without the author's prior written consent.

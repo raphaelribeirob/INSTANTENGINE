@@ -3,7 +3,7 @@
   "version": "3.1.0",
   "package_name": "@riverthree/instantengine",
   "status": "source QA, not deployed",
-  "file_count_excluding_manifest": 164,
+  "file_count_excluding_manifest": 163,
   "files": [
     {
       "path": ".env.example",
@@ -17,8 +17,8 @@
     },
     {
       "path": ".gitignore",
-      "sha256": "38a9313622a135a507e8607ceb102b1874cd73ebbe68aca9ce3f91209952cdf7",
-      "bytes": 204
+      "sha256": "9aaec5c2027596893313d66f262646145473b2da6dbd2dc0adddc4fd4de4cac7",
+      "bytes": 232
     },
     {
       "path": "agents/grokbot/observer-client.mjs",
@@ -106,11 +106,6 @@
       "bytes": 1718
     },
     {
-      "path": "docs/LEGACY_TMNT_MASTER.md",
-      "sha256": "e98a69db91a042d6e4a4c09383a96de337af5d377f60dba4e0b4ae1f0c19c32c",
-      "bytes": 28239
-    },
-    {
       "path": "docs/LEGACY_TMNT_README.md",
       "sha256": "34ece59be712addddc4d69f162e7e24c7d7a4da42672daba4d3df4bc99379895",
       "bytes": 26620
@@ -172,13 +167,13 @@
     },
     {
       "path": "docs/V22_ACCEPTANCE.md",
-      "sha256": "535aa35a50bc802362c35e0fb9adcab93d324ba24e0528566fb61f404c3cc742",
-      "bytes": 1291
+      "sha256": "7d62a05a1d38b357468717ab3fad7f77cfe210fbf8f8a796ab97b842c0b19e19",
+      "bytes": 1297
     },
     {
       "path": "docs/V22_INSTALL.md",
-      "sha256": "7b194a91fc960260c45dee7e5594096d2c6864ebe7e1e4f1635e916ebfe2eae3",
-      "bytes": 2672
+      "sha256": "366a8332a8b48638a9b3fa0bff543300b549af865c24bd63fd0a37bc03504df6",
+      "bytes": 2686
     },
     {
       "path": "docs/V22_TEST_REPORT.md",
@@ -492,8 +487,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "3b2c112807ff15a823169a37d12b8f6f11d1a9505f6df42079eaa99a8afdf766",
-      "bytes": 16382
+      "sha256": "3a008b0ad4b6a79829f04e34f3d11a6e3461d49d77b9ddf45945fbf4860ecc1e",
+      "bytes": 16562
     },
     {
       "path": "scripts/build-bootstrap.mjs",
@@ -737,8 +732,8 @@
     },
     {
       "path": "test/instantengine-identity.test.mjs",
-      "sha256": "58acb9634ec8fb08d0d3009d158b14465465451a63bd83100aca7afa7e25b5a7",
-      "bytes": 1980
+      "sha256": "3ec70c8d45800ae0deffeb43df0c7c72e6446e8e3f3e9279f5d82f73e257c09b",
+      "bytes": 2009
     },
     {
       "path": "test/instantstudy-bridge.test.mjs",

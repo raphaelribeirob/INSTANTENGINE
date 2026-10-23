@@ -5,7 +5,7 @@
 | Suíte | Resultado |
 |---|---:|
 | Node.js moderno, incluindo 17 testes PostHog A/B | 219/219 |
-| Adaptador InstantStudy | 4/4 |
+| Adaptador do app de estudos | 4/4 |
 | Núcleo legado | 137/137 |
 | **Total automatizado** | **360/360** |
 | Smoke HTTP legado | 21/21 |

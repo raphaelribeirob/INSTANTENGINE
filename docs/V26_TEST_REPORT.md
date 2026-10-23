@@ -10,7 +10,7 @@
 
 ## Verificações executadas
 
-- `npm test`: **372/372** — 231 núcleo moderno (12 novos), 4 integração InstantStudy, 137 legados.
+- `npm test`: **372/372** — 231 núcleo moderno (12 novos), 4 integração do app de estudos, 137 legados.
 - `npm run smoke`: **21/21** asserts de HTTP local; sem DATABASE_URL no executor e sem push real.
 - `npm run check`: PASS.
 - `npm run db:verify-install`: **14/14** migrações verificadas na ordem esperada, sem aplicação de novas migrações.

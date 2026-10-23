@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createInstantChurnNeonRepository} from '../src/storage/churn-neon.mjs';
-const scope={tenant:'riverthree',app:'instantspeak',environment:'test',asOf:'2026-10-22',limit:10,afterSubject:''};
+const scope={tenant:'demo',app:'language_app',environment:'test',asOf:'2026-10-22',limit:10,afterSubject:''};
 const data={subject:'test-user',lastSeen:'2026-10-21T23:59:59Z',activeDays7:1,activeDaysPrev7:0,completed7:0,failed7:0,crashes7:0,opens7:1};
 test('late yesterday UTC counts as one inactive calendar day, not zero',async()=>{
  const repo=await createInstantChurnNeonRepository(null,{sql:async()=>[data]});

@@ -3,10 +3,10 @@ import {randomUUID} from 'node:crypto';
 import {createTMNT} from '../src/index.mjs';
 import {createMemoryRepository} from '../src/storage/memory.mjs';
 const engine=createTMNT({repository:createMemoryRepository()});
-const tenant='instant';
+const tenant='demo';
 const apps=[
- {app:'dotsvest',cadence:'daily',modules:{notifications:true,habits:true,social:true},event:'micro_lesson_completed'},
- {app:'instantcloser',cadence:'weekly',modules:{notifications:true,habits:false,social:false},event:'followup_completed'},
+ {app:'finance_app',cadence:'daily',modules:{notifications:true,habits:true,social:true},event:'micro_lesson_completed'},
+ {app:'sales_app',cadence:'weekly',modules:{notifications:true,habits:false,social:false},event:'followup_completed'},
  {app:'marketplace',cadence:'episodic',modules:{notifications:false,habits:false,social:false},event:'order_completed'}
 ];
 for(const p of apps){

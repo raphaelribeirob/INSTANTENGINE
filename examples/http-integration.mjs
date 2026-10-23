@@ -8,10 +8,10 @@ import {randomUUID} from 'node:crypto';
 import {createTMNT} from '../src/index.mjs';
 import {createMemoryRepository} from '../src/storage/memory.mjs';
 import {createTMNTGateway,makeSignedTMNTRequest} from '../src/integrations/http-gateway.mjs';
-const scope='demo/instantstudy/test';
+const scope='demo/study_app/test';
 const secret='DEMO-ONLY-DO-NOT-USE-'+randomUUID()+randomUUID();
 const repo=createMemoryRepository();const engine=createTMNT({repository:repo});
-await engine.registerApp({tenant:'demo',app:'instantstudy',environment:'test',keyHash:'a'.repeat(64),modules:{notifications:false,habits:true},events:[{name:'flashcard_reviewed',value:true}]});
+await engine.registerApp({tenant:'demo',app:'study_app',environment:'test',keyHash:'a'.repeat(64),modules:{notifications:false,habits:true},events:[{name:'flashcard_reviewed',value:true}]});
 const gateway=createTMNTGateway({engine,nonceStore:repo,credentials:{[scope]:{secret}}});
 const server=createServer(async (req,res)=>{
  try{

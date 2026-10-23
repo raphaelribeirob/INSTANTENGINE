@@ -4,7 +4,7 @@
 
 | Critério | Prova | Estado |
 |---|---|---|
-| SDK v2.7 permanece compatível | testes modernos + InstantStudy + legados | PASSOU em laboratório |
+| SDK v2.7 permanece compatível | testes modernos + app de estudos + legados | PASSOU em laboratório |
 | Enfileirar referência scoped UUID, sem identificador pessoal | mock Graphile Worker com verificação de payload | PASSOU em laboratório |
 | Revalidar evento de valor e consentimento antes do PostHog | tarefas Graphile testadas | PASSOU em laboratório |
 | Produção desabilitada por padrão | flag de QA e task production guard | PASSOU em laboratório |

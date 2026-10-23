@@ -1,5 +1,5 @@
 {
-  "name": "@riverthree/instantengine",
+  "name": "instantengine",
   "version": "3.1.2",
   "description": "INSTANTENGINE — consent-first multi-app retention, churn QA and intelligent notification policies (former RIVERENGINE)",
   "private": true,
@@ -31,9 +31,9 @@
     "./churn-neon": "./src/storage/churn-neon.mjs"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs && node --test integrations/instantstudy/tmntBridge.test.js && node legacy/R3ENGINE_v1.1.mjs test",
+    "test": "node --test test/*.test.mjs && node --test integrations/study-app/tmntBridge.test.js && node legacy/R3ENGINE_v1.1.mjs test",
     "smoke": "node legacy/R3ENGINE_v1.1.mjs smoke",
-    "check": "node legacy/R3ENGINE_v1.1.mjs check && node --check src/index.mjs && node --check src/commerce.mjs && node --check src/worker.mjs && node --check src/storage/neon.mjs && node --check src/policy.mjs && node --check src/retention-next.mjs && node --check src/decisions.mjs && node --check src/habits.mjs && node --check src/storage/memory.mjs && node --check src/analytics.mjs && node --check src/duolingo-retention.mjs && node --check examples/duolingo-ifood.mjs && node --check src/integrations/posthog.mjs && node --check test/worker-security.test.mjs && node --check src/integrations/http-gateway.mjs && node --check examples/duolingo-next.mjs && node --check test/v21-adversarial.test.mjs && node --check integrations/instantstudy/tmntBridge.js && node --check src/integrations/posthog-ab.mjs && node --check examples/posthog-ab-qa.mjs",
+    "check": "node legacy/R3ENGINE_v1.1.mjs check && node --check src/index.mjs && node --check src/commerce.mjs && node --check src/worker.mjs && node --check src/storage/neon.mjs && node --check src/policy.mjs && node --check src/retention-next.mjs && node --check src/decisions.mjs && node --check src/habits.mjs && node --check src/storage/memory.mjs && node --check src/analytics.mjs && node --check src/duolingo-retention.mjs && node --check examples/duolingo-ifood.mjs && node --check src/integrations/posthog.mjs && node --check test/worker-security.test.mjs && node --check src/integrations/http-gateway.mjs && node --check examples/duolingo-next.mjs && node --check test/v21-adversarial.test.mjs && node --check integrations/study-app/tmntBridge.js && node --check src/integrations/posthog-ab.mjs && node --check examples/posthog-ab-qa.mjs",
     "worker": "node bin/run-worker.mjs",
     "db:bootstrap:build": "node scripts/build-bootstrap.mjs",
     "db:verify-install": "node scripts/verify-install.mjs",

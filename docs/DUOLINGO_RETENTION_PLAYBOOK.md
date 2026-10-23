@@ -35,7 +35,7 @@ Documentação de referência: Duolingo Product Highlights 2025, Friend Streak, 
 ## Relatório D1/D7/D30
 
 ```js
-import { reportDuolingoRetention } from '@riverthree/riverengine/duolingo-retention';
+import { reportDuolingoRetention } from 'instantengine/duolingo-retention';
 const report = reportDuolingoRetention({
   flagKey: 'study-goal-guidance-v1', asOf: '2026-10-21', minPerArm: 100,
   participants: [/* sujeitos consentidos com variante/exposedAt verdadeiros */],
@@ -47,7 +47,7 @@ Alternativamente, em um **serviço de analytics com acesso administrativo** e ad
 
 ```js
 const report = await experiments.reportRetention({
-  tenant:'workspace', app:'instantstudy', environment:'test',
+  tenant:'workspace', app:'study_app', environment:'test',
   subject:'service_admin', // identificador técnico exigido pelo contrato; não autoriza acesso por si só
   flagKey:'study-goal-guidance-v1', variants:['control','test'],
   asOf:'2026-10-21', minPerArm:100
@@ -65,11 +65,11 @@ const report = await experiments.reportRetention({
 
 ## Primeiros experimentos sugeridos (rascunhos; todos desativados)
 
-1. **InstantStudy:** explicar o benefício de estabelecer uma meta diária vs. controle. Primária D7 com atividade de valor, secundárias D1/D30; guardrails desistência do onboarding e qualidade das avaliações.
-2. **InstantSpeak:** horário personalizado de lembretes vs. lembrete tradicional, somente após consentimento push; primária conversas concluídas por pessoa exposta, secundária D7, guardrails bloqueio de push e queixas.
+1. **App de estudos:** explicar o benefício de estabelecer uma meta diária vs. controle. Primária D7 com atividade de valor, secundárias D1/D30; guardrails desistência do onboarding e qualidade das avaliações.
+2. **App de idiomas:** horário personalizado de lembretes vs. lembrete tradicional, somente após consentimento push; primária conversas concluídas por pessoa exposta, secundária D7, guardrails bloqueio de push e queixas.
 3. **DOTSVEST:** três missões de revisão (vs. revisão tradicional), primária exercícios corretos concluídos e D7, guardrails erros sistemáticos, abandono e tempo excessivo.
 
-**Não aplicar automaticamente** competição em InstantBible, nem streak diário a InstantWork: retenção inadequada pode piorar a experiência. O objetivo é engajamento relevante, não gamificação indiscriminada.
+**Não aplicar automaticamente** competição em apps de leitura, nem streak diário a apps de produtividade: retenção inadequada pode piorar a experiência. O objetivo é engajamento relevante, não gamificação indiscriminada.
 
 ## Requisitos antes de liberação em produção
 

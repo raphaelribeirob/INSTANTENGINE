@@ -1,9 +1,9 @@
 {
   "product": "INSTANTENGINE",
   "version": "3.1.2",
-  "package_name": "@riverthree/instantengine",
+  "package_name": "instantengine",
   "status": "source QA, not deployed",
-  "file_count_excluding_manifest": 173,
+  "file_count_excluding_manifest": 172,
   "files": [
     {
       "path": ".env.example",
@@ -62,8 +62,8 @@
     },
     {
       "path": "config/app-profiles.qa.json",
-      "sha256": "a35f9d5e50c15bc37222dd1539402e34d8ea652140f75679a272f531b1a24401",
-      "bytes": 3159
+      "sha256": "9227907281cee80cb0d94313fc78fc704d62f5a63e16f4cf6555e38cc6f1d252",
+      "bytes": 3155
     },
     {
       "path": "config/grokbot-observer.qa.json",
@@ -72,7 +72,7 @@
     },
     {
       "path": "config/posthog-ab-drafts.json",
-      "sha256": "b334dacecf58374abd8c893b53b2cfb8595d4e682043183ebc7a70407a4c37af",
+      "sha256": "4b0252379b39e38332cdb4b01f3314797d3e7b68a7dbfeb56e6ade3f60d987b8",
       "bytes": 1715
     },
     {
@@ -82,13 +82,13 @@
     },
     {
       "path": "docs/DUOLINGO_RETENTION_PLAYBOOK.md",
-      "sha256": "c5398c9ecb0c97650ae082a1562a20f8e70d002923325205b04c34f9bd362e5d",
-      "bytes": 7771
+      "sha256": "e416e15850c38f8ed0f2621ae1fc1e38d4178a3cd5ed8c1d50147d38037c2470",
+      "bytes": 7775
     },
     {
       "path": "docs/GROKBOT_OBSERVER_V29.md",
-      "sha256": "472a38e70e2acfa8d9fd720670b5099b70fcbedff19b046ac1228d4badca4d2e",
-      "bytes": 5350
+      "sha256": "2d5ed86177a3b2cb3992b793db0a6b35585a3111bb5145a5697bfec6c7fbc49a",
+      "bytes": 5311
     },
     {
       "path": "docs/GROKBOT_ROUTINE.md",
@@ -97,18 +97,13 @@
     },
     {
       "path": "docs/INSTALACAO_V28.md",
-      "sha256": "da3f4148ca7815e2a437537cc818491eda738cdca194f6a70f6ad688bdf7d753",
-      "bytes": 5749
+      "sha256": "ac83db3649cbc3ad134b146260b65b6eb63be3aed81c26d1ac545fa92f310b1e",
+      "bytes": 5739
     },
     {
       "path": "docs/INTEGRATION_CHECKLIST.md",
       "sha256": "0e42122916dc5e17da85d324f31af152b766a4e0c55fda27927ed51fea071499",
       "bytes": 1718
-    },
-    {
-      "path": "docs/LEGACY_TMNT_README.md",
-      "sha256": "34ece59be712addddc4d69f162e7e24c7d7a4da42672daba4d3df4bc99379895",
-      "bytes": 26620
     },
     {
       "path": "docs/READINESS_RUNBOOK.md",
@@ -187,18 +182,18 @@
     },
     {
       "path": "docs/V23_INSTALL.md",
-      "sha256": "0ac79a618df52afc9560d4d843353571ff03bbe52bd1f135d6a73db051a04561",
-      "bytes": 1450
+      "sha256": "02c4c2030a91ab26dee72d9f049eb694d06d0edb3a468d28a6ec18f79f7ecd56",
+      "bytes": 1417
     },
     {
-      "path": "docs/V23_INSTANTSTUDY_ACCEPTANCE.md",
-      "sha256": "ca4567675dbd7ece03e5ff85a12a1d1045af01025e13a4bdce72e3ae51ee4300",
-      "bytes": 1652
+      "path": "docs/V23_STUDY_APP_ACCEPTANCE.md",
+      "sha256": "4566aef8ef1e5b9661007068ab9e9a859f8b486d1022d09979335d78f611bdc5",
+      "bytes": 1636
     },
     {
       "path": "docs/V23_TEST_REPORT.md",
-      "sha256": "75e69d6ccf68f652a8dfd8e7388265599e3c9576836be053dd8ae58698127496",
-      "bytes": 2301
+      "sha256": "45fa2e1331499bfda8f5f923c4ccc8bee234a9a236295c1889de4a1f9aec56aa",
+      "bytes": 2283
     },
     {
       "path": "docs/V25_ACCEPTANCE.md",
@@ -207,18 +202,18 @@
     },
     {
       "path": "docs/V25_POSTHOG_AB.md",
-      "sha256": "d065de120678a47ff2f89ac162b424b3371eb5f6232772fbcbc6f527fc3aa7ed",
-      "bytes": 6567
+      "sha256": "267419572dca0d2ee0d055f92ab37597cb60fc424519aa6748a7f53e438dc429",
+      "bytes": 6535
     },
     {
       "path": "docs/V25_TEST_REPORT.md",
-      "sha256": "5cb62a2daf05e3559e38ef4bb6e1ce7eb5ca8d1da7acc1c4c4de9ce30abc56f8",
-      "bytes": 2191
+      "sha256": "d768c250b639431dbf13ab08456feb00a6463d59f652e43383648fe5d2a1b20d",
+      "bytes": 2196
     },
     {
       "path": "docs/V26_TEST_REPORT.md",
-      "sha256": "a47aa031bc1c4984a5bf061e0939ab519495ea4e5a70c24bb91884d6081fa49c",
-      "bytes": 2028
+      "sha256": "c8794589af890260d25c05c6a2d57b6628c223b33a4ec51b8f78138e22906eab",
+      "bytes": 2033
     },
     {
       "path": "docs/V27_ACCEPTANCE.md",
@@ -227,18 +222,18 @@
     },
     {
       "path": "docs/V27_TEST_REPORT.md",
-      "sha256": "1ca583eba9bd29220f5afb1195c22ea08117459070c4f403bae820b5c7e046bb",
-      "bytes": 2395
+      "sha256": "89d9dc77ca93044cfd7efb62183857e791a36a3608028cfe0e6b56e4200f7703",
+      "bytes": 2400
     },
     {
       "path": "docs/V28_ACCEPTANCE.md",
-      "sha256": "fa7d814193f63a2efea95cf069df04420ad98b1a562e1ca668f96f2840390045",
-      "bytes": 2781
+      "sha256": "bc7917b27eb55e1f935224c0972c669bdc7341b2f04ad27070153152c0025f2f",
+      "bytes": 2783
     },
     {
       "path": "docs/V28_TEST_REPORT.md",
-      "sha256": "13014ca912f664722ce8e902a8203f010b7f324cdee3a655d02cf57dda1f3356",
-      "bytes": 1397
+      "sha256": "8fd1429d40ea9d1b4f39a75cbf94aef89bf10ea7ebb20af8a2a55f8c7036466b",
+      "bytes": 1402
     },
     {
       "path": "docs/V29_ACCEPTANCE.md",
@@ -247,8 +242,8 @@
     },
     {
       "path": "docs/V29_TEST_REPORT.md",
-      "sha256": "5e858136cf44a997a533b07bd5c915abc086c40cd38d099ca5d80925ea9fd49b",
-      "bytes": 2426
+      "sha256": "ef08f1bb050fd620da3a6d18e36a83742351d3bbc41a4fbe4c554f758e32c41b",
+      "bytes": 2431
     },
     {
       "path": "docs/V3_1_1_CHURN_FIXES.md",
@@ -257,18 +252,18 @@
     },
     {
       "path": "docs/V30_ACCEPTANCE.md",
-      "sha256": "d095fdababe4eba46a7d205e50ac46c5bb8fa4b7a076dc988a33e1ebf74a3e37",
-      "bytes": 2181
+      "sha256": "2b126720d78599fe03f79bb381553ef847e2e78b1bf133314221f9421000972e",
+      "bytes": 2190
     },
     {
       "path": "docs/V30_CHURN_PREDICTION.md",
-      "sha256": "69769202478b173e5f20e12bb66fd805227f0fe624b93a7879bf954b3cc64f9e",
-      "bytes": 10967
+      "sha256": "5ff67af707b512d86ec2cf1de7cddc8fab4bb2af4787e4dbf183eabbf0e8dac0",
+      "bytes": 10947
     },
     {
       "path": "docs/V30_TEST_REPORT.md",
-      "sha256": "01af0a083a5fe67ea4928d7fc6dc6507b5847c16d9b5e405d9937eb84c214552",
-      "bytes": 1902
+      "sha256": "09b9dbc7ea49ebd2bfddb339160134ee01158b03f19d0feb58ee48d049a3b2b8",
+      "bytes": 1899
     },
     {
       "path": "docs/V31_ACCEPTANCE.md",
@@ -277,13 +272,13 @@
     },
     {
       "path": "docs/V31_INSTANTENGINE_MIGRATION.md",
-      "sha256": "cbaf10f8b99ed461430a0fb9c094cd1120be8ac68632c37d43868586a2362d1f",
-      "bytes": 5007
+      "sha256": "eb7b6e7e2fb03570d60f1923b78f9fdcf79663dcf20fedc9246888e3dd4db914",
+      "bytes": 4940
     },
     {
       "path": "docs/V31_TEST_REPORT.md",
-      "sha256": "905f21d7c6b93ad29be817060a00060abbe7352a8245689ae54a374436268c56",
-      "bytes": 3156
+      "sha256": "efcc14547673fb4113f274428efdf6bd66d607f1dc7c1572f8dfa9584f3d6d19",
+      "bytes": 3141
     },
     {
       "path": "examples/ab_statistical_qa.json",
@@ -297,13 +292,13 @@
     },
     {
       "path": "examples/demo.mjs",
-      "sha256": "bb3d44571709e3b3f53e198c7d32a1f7b640bb444a8aa40a0f56b4d311e018e4",
-      "bytes": 1591
+      "sha256": "c29bb681a05f41719a13b3308e908485f638b21a9c3fbf0824561734ea4cf592",
+      "bytes": 1587
     },
     {
       "path": "examples/duolingo-ifood.mjs",
-      "sha256": "082e9e27d7f4d3592f76343e181b6bcd0597d3c333f3ef8e53c88d46cd13827c",
-      "bytes": 2669
+      "sha256": "8b9945b21763716f5f113448b4e43df89dcd60ee77ebce796efcd3c0136bbed0",
+      "bytes": 2654
     },
     {
       "path": "examples/duolingo-next.mjs",
@@ -317,13 +312,13 @@
     },
     {
       "path": "examples/http-integration.mjs",
-      "sha256": "feb4bc50007163119b3d54d616fe711c362a2db942b81e2cfabc59ab48b540df",
-      "bytes": 1940
+      "sha256": "a8a4f318f7641affd42e9279994ed073f8645d18266f95fd0bbccaafaba37418",
+      "bytes": 1934
     },
     {
       "path": "examples/multi-app.mjs",
-      "sha256": "eb2582d1056bcf1466975a61647a052fa5ba6e4e1c6c8227ee0ccf5a3f348994",
-      "bytes": 1279
+      "sha256": "289ebf0b0988d6eea405c6828977742cffffe424df7bec5b1ac3441222dff214",
+      "bytes": 1275
     },
     {
       "path": "examples/posthog-ab-qa.mjs",
@@ -336,44 +331,44 @@
       "bytes": 1412
     },
     {
-      "path": "integrations/instantstudy/package.json",
+      "path": "integrations/study-app/package.json",
       "sha256": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
       "bytes": 33
     },
     {
-      "path": "integrations/instantstudy/README.md",
-      "sha256": "711ba56ab23aaa55cafc7c92fda8b322344cf5f009ccb02f8a0adc5cd224f59d",
-      "bytes": 1592
+      "path": "integrations/study-app/README.md",
+      "sha256": "d2bb30f858ca471e599cb0c0a64c56fa88261072a3c19d8e59034cab9504a388",
+      "bytes": 1556
     },
     {
-      "path": "integrations/instantstudy/tmntBridge.js",
-      "sha256": "b14fb70c661125b4300dcd8cad0593cb0ed4c782d8ffe159fb1d8361f2ae6d31",
-      "bytes": 5918
+      "path": "integrations/study-app/tmntBridge.js",
+      "sha256": "df7eec6c0a382db4960525b3d917b94a3889f881dc89391e011be9fbcb9ce763",
+      "bytes": 5897
     },
     {
-      "path": "integrations/instantstudy/tmntBridge.mjs",
-      "sha256": "b14fb70c661125b4300dcd8cad0593cb0ed4c782d8ffe159fb1d8361f2ae6d31",
-      "bytes": 5918
+      "path": "integrations/study-app/tmntBridge.mjs",
+      "sha256": "df7eec6c0a382db4960525b3d917b94a3889f881dc89391e011be9fbcb9ce763",
+      "bytes": 5897
     },
     {
-      "path": "integrations/instantstudy/tmntBridge.test.js",
-      "sha256": "1bc17b411863502324d9e5c3e3fb688907e1b08706bc5e350231f9b1c7e9e1ae",
-      "bytes": 3026
+      "path": "integrations/study-app/tmntBridge.test.js",
+      "sha256": "450c7907d06b842315c64dc61dc18bbe07ea9463f61248cdbaa06d640487c429",
+      "bytes": 3005
     },
     {
-      "path": "integrations/instantstudy/tmntBridge.test.ts",
-      "sha256": "1db239da557e53c3aafd2094c5bd1cd1a54aea964ee94a807e683477c54528d5",
-      "bytes": 2805
+      "path": "integrations/study-app/tmntBridge.test.ts",
+      "sha256": "901534424fd35d33ad41a4a1ed8a88623a877eac11669cda42ed6665495ffba7",
+      "bytes": 2784
     },
     {
-      "path": "integrations/instantstudy/tmntBridge.ts",
-      "sha256": "ece40794a92db14b1d5424da6571e1f24a5e6feb1f7f56a7cf0fbf63546fec8c",
-      "bytes": 6264
+      "path": "integrations/study-app/tmntBridge.ts",
+      "sha256": "b84d415681e0a9d8dca2130936d17ca15d4620a5cfdd8d41ca8daa859f069281",
+      "bytes": 6243
     },
     {
       "path": "legacy/R3ENGINE_v1.1.mjs",
-      "sha256": "a7fc621a20a9268b74f983af0bcfc31fbfa7ba124efec0397cb2947813b65ac1",
-      "bytes": 197159
+      "sha256": "7592b8cf4bcee8dc05fad2789a8f93b7ac9912f19f88d779d7d34b8074f593f7",
+      "bytes": 197101
     },
     {
       "path": "migrations/0000_universal_bootstrap.sql",
@@ -457,13 +452,13 @@
     },
     {
       "path": "package-lock.json",
-      "sha256": "afb9d267587be49d9bcbd70db6e4c3335dbf8a5944e16b56717e870ddc9be304",
-      "bytes": 670
+      "sha256": "9b91d575fbe73333a2d0697cbca7c68baa171a76a790f702f8fd1eaabebff219",
+      "bytes": 646
     },
     {
       "path": "package.json",
-      "sha256": "7822eaf832b2829c0835096e9f1a0346d38a2d6e027e509622b8ff1a05538c1a",
-      "bytes": 5253
+      "sha256": "459c27d890238353c4894e88531647d6d254ec2c47f84c257bb6a8181fb3e76a",
+      "bytes": 5235
     },
     {
       "path": "python/ab_statsmodels.py",
@@ -682,8 +677,8 @@
     },
     {
       "path": "test/app-profiles.test.mjs",
-      "sha256": "44af7fab3189100b8924b8e221ad6dbc9c56662f041ffece398748ac5eecd369",
-      "bytes": 1748
+      "sha256": "4ab9601f952c25bba19f1ed852142b14f676ec3aeb03fe7fe574bd0bff7117c2",
+      "bytes": 1753
     },
     {
       "path": "test/bandit-engine-v28.test.mjs",
@@ -702,18 +697,18 @@
     },
     {
       "path": "test/churn-cursor-regression.test.mjs",
-      "sha256": "c995174d18e0df7824fa5d38d50fdf71118bca163ae01ebc5f66ee37456b0236",
-      "bytes": 2011
+      "sha256": "aaeebabb8e59890504431080bb14d14cf309f450acd626e243e89c24e16ea93b",
+      "bytes": 2005
     },
     {
       "path": "test/churn-gap-v31.test.mjs",
-      "sha256": "3a1b5f6fab8769c1c3b4c5d179a6907c35bad9e41a5124c6ebfda66a788fe2c4",
-      "bytes": 1091
+      "sha256": "9741a2cf8c805e5239cd9d64ad2e25ffd392f50a366fecd62cc4e192ccbf3c15",
+      "bytes": 1085
     },
     {
       "path": "test/churn-job-regression.test.mjs",
-      "sha256": "81ca850e33b560bbe445372be2a209b0df0707e50adb94658fe7c0e8c7016e3a",
-      "bytes": 4331
+      "sha256": "ea09fb4794fdd5b2d14c158ac1a465f23ae023d1b387a5ea9a29bbaaab5487e5",
+      "bytes": 4325
     },
     {
       "path": "test/churn-model-signature.test.mjs",
@@ -722,18 +717,18 @@
     },
     {
       "path": "test/churn-neon-contract.test.mjs",
-      "sha256": "6d6107d9738e58872aaf8cefb9caeffdb7c5d0bba2b1607d9fb811e33d663300",
-      "bytes": 1973
+      "sha256": "6f0a607ad5a7e5e0c40b26b52b034c6cdd9156a0577e03961bb75c14ea3244fb",
+      "bytes": 1967
     },
     {
       "path": "test/churn-prediction.test.mjs",
-      "sha256": "aafd4396aa629cbd4fcba77c525ba56026dcacb70a7fed62c4d3b7ad0e409214",
-      "bytes": 7519
+      "sha256": "74c4c9602bd2ee2cff3488199ba9d1e38ebaa6c4e011046cc13ac8219becd94d",
+      "bytes": 7513
     },
     {
       "path": "test/churn-purge.test.mjs",
-      "sha256": "09daae766b090d8a868a0a9ecaeb031c6083bb279894cc0f27bf0ae057457e38",
-      "bytes": 1594
+      "sha256": "2afd49687ef94344b332944c4ad468256f29c939c7d5c625e9291a0cb3ea913b",
+      "bytes": 1567
     },
     {
       "path": "test/commerce-feedback.test.mjs",
@@ -767,8 +762,8 @@
     },
     {
       "path": "test/grokbot-observer.test.mjs",
-      "sha256": "bbdd23c9cc7b9fc1285c1d9cb4d5826e2fc094197ed854db15239f27c0cceb3e",
-      "bytes": 6886
+      "sha256": "95865c1aa47e57f1bab1304ba9136b9abab115a8228c1562eb54fdbfd38d7607",
+      "bytes": 6838
     },
     {
       "path": "test/habits-timezone-regression.test.mjs",
@@ -777,13 +772,8 @@
     },
     {
       "path": "test/instantengine-identity.test.mjs",
-      "sha256": "69c57558ba9c5013eb43089acf87f18876250b1c139aa794f7e3aa8a3ff05568",
-      "bytes": 2009
-    },
-    {
-      "path": "test/instantstudy-bridge.test.mjs",
-      "sha256": "971c1b6abdefbdecc2fb295433e5059ee630107f47c8b35908f7234122d6f535",
-      "bytes": 6063
+      "sha256": "82236f13b09b760e1464972d628645f9781f5a742deda50bbf81d88620c9bdfa",
+      "bytes": 1997
     },
     {
       "path": "test/manifest-integrity.test.mjs",
@@ -797,8 +787,8 @@
     },
     {
       "path": "test/posthog-ab.test.mjs",
-      "sha256": "3f10201c42ba09873fff32dfb915873ae857be0019d8cf64e2a847f4150e4799",
-      "bytes": 11336
+      "sha256": "49ff6bfd5bb3bfd90231224facf1661b2bd33eb533b60d1412a1a9397ff125b0",
+      "bytes": 11333
     },
     {
       "path": "test/posthog-integration.test.mjs",
@@ -817,8 +807,8 @@
     },
     {
       "path": "test/riverengine-brand.test.mjs",
-      "sha256": "525463e4a5acd114af544cb8f82d1143b5be91f4ae483c366fc2f9b23b20e73b",
-      "bytes": 1016
+      "sha256": "c33a5c2397f8a28c97bf8129a7a89d3c132224b36300deef886e072365fe2c69",
+      "bytes": 1004
     },
     {
       "path": "test/smart-notification-neon-contract.test.mjs",
@@ -844,6 +834,11 @@
       "path": "test/storage-contract.test.mjs",
       "sha256": "7bd770bbea060027f4d33c18e0d46c6715f85c7fe45463dd8a361398cd7cf95a",
       "bytes": 3556
+    },
+    {
+      "path": "test/study-app-bridge.test.mjs",
+      "sha256": "019b42cb453a0cf94bcee448c1c275d789b16e5c7283b77ddfc276d51ebc6e2f",
+      "bytes": 6021
     },
     {
       "path": "test/universal.test.mjs",

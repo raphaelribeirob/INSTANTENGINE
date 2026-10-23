@@ -5,9 +5,9 @@ import {randomUUID} from 'node:crypto';
 import {createTMNT} from '../src/index.mjs';
 import {createMemoryRepository} from '../src/storage/memory.mjs';
 import {createTMNTGateway} from '../src/integrations/http-gateway.mjs';
-import {createTMNTStudyBridge,signVerifiedLearner} from '../integrations/instantstudy/tmntBridge.mjs';
+import {createTMNTStudyBridge,signVerifiedLearner} from '../integrations/study-app/tmntBridge.mjs';
 
-const scope='lab/instantstudy/test';
+const scope='lab/study_app/test';
 const signingSecret='signer-'+randomUUID()+randomUUID();
 const identitySecret='identity-'+randomUUID()+randomUUID();
 const pseudonymSecret='pseudonym-'+randomUUID()+randomUUID();
@@ -17,14 +17,14 @@ function signedHeaders(sessionId, options={}){
  const locale=options.locale??'pt-BR';
  const timezone=options.timezone??'America/Sao_Paulo';
  const chosen=options.learnerId??learnerId;
- return {'x-instantstudy-learner':chosen,'x-instantstudy-identity-ts':String(timestamp),
-  'x-instantstudy-locale':locale,'x-instantstudy-timezone':timezone,
-  'x-instantstudy-identity-proof':signVerifiedLearner({learnerId:chosen,sessionId,timestamp,locale,timezone,secret:identitySecret})};
+ return {'x-study-app-learner':chosen,'x-study-app-identity-ts':String(timestamp),
+  'x-study-app-locale':locale,'x-study-app-timezone':timezone,
+  'x-study-app-identity-proof':signVerifiedLearner({learnerId:chosen,sessionId,timestamp,locale,timezone,secret:identitySecret})};
 }
 function setup(url, overrides={}){return createTMNTStudyBridge({enabled:true,endpoint:url,scope,signingSecret,identitySecret,pseudonymSecret,...overrides});}
 async function withServer(fn){
  const repo=createMemoryRepository();const engine=createTMNT({repository:repo});
- await engine.registerApp({tenant:'lab',app:'instantstudy',environment:'test',keyHash:'a'.repeat(64),cadence:'daily',modules:{habits:true,notifications:false},events:[{name:'study_session_completed',value:true}]});
+ await engine.registerApp({tenant:'lab',app:'study_app',environment:'test',keyHash:'a'.repeat(64),cadence:'daily',modules:{habits:true,notifications:false},events:[{name:'study_session_completed',value:true}]});
  const gateway=createTMNTGateway({engine,nonceStore:repo,credentials:{[scope]:{secret:signingSecret,actions:['track','getHabit']}}});
  const server=createServer(async(req,res)=>{
   try {const parts=[];for await(const part of req)parts.push(part);
@@ -43,7 +43,7 @@ test('disabled by default cannot emit or require secrets',async()=>{
 test('rejects missing, weak, reused secrets and public HTTP gateway',()=>{
  assert.throws(()=>createTMNTStudyBridge({enabled:true}),/required/);
  assert.throws(()=>setup('http://example.com'),/HTTPS/);
- assert.throws(()=>setup('http://127.0.0.1:2345',{scope:'lab/instantstudy/prod'}),/HTTPS/);
+ assert.throws(()=>setup('http://127.0.0.1:2345',{scope:'lab/study_app/prod'}),/HTTPS/);
  assert.throws(()=>setup('http://localhost',{identitySecret:signingSecret}),/secrets/);
 });
 test('verified completed session goes over real HTTP; second delivery is idempotent',async()=>withServer(async({repo,url})=>{
@@ -57,15 +57,15 @@ test('verified completed session goes over real HTTP; second delivery is idempot
  assert.equal(repo.debug.subjects.get(event.subjectKey).locale,'pt-BR');
  const anonSubject=event.subjectKey.split('/').at(-1);
  assert.notEqual(anonSubject,learnerId);assert.equal(anonSubject.length,48);
- const habit=await repo.getHabit({tenant:'lab',app:'instantstudy',environment:'test',subject:anonSubject});
+ const habit=await repo.getHabit({tenant:'lab',app:'study_app',environment:'test',subject:anonSubject});
  assert.equal(habit.streak,1);assert.equal(habit.xp,10);
 }));
 test('identity spoof, changed timezone or language, stale timestamp and invalid signature are refused',async()=>withServer(async({url,repo})=>{
  const bridge=setup(url);const session={sessionId:randomUUID(),learnerId,completed:true,attempts:1};
  const base=signedHeaders(session.sessionId);
- for(const headers of [ {},{...base,'x-instantstudy-learner':'other_user'},
-  {...base,'x-instantstudy-timezone':'UTC'}, {...base,'x-instantstudy-locale':'en'},
-  {...base,'x-instantstudy-identity-proof':'sha256='+'0'.repeat(64)},
+ for(const headers of [ {},{...base,'x-study-app-learner':'other_user'},
+  {...base,'x-study-app-timezone':'UTC'}, {...base,'x-study-app-locale':'en'},
+  {...base,'x-study-app-identity-proof':'sha256='+'0'.repeat(64)},
   signedHeaders(session.sessionId,{timestamp:Date.now()-180000})]){
   assert.equal(await bridge.emitCompleted({session,headers}),'identity_required');
  }

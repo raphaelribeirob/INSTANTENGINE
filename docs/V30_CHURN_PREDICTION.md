@@ -27,7 +27,7 @@ This is an architecture for helping people achieve verified value, not maximizin
 
 ## Installation (backend only)
 
-1. Install Node.js 22+ and existing `@riverthree/riverengine` private local source; it is **not** published to npm.
+1. Install Node.js 22+ and existing `instantengine` private local source; it is **not** published to npm.
 2. On a dedicated authorized Neon QA database, apply `migrations/0000` through `0015` **in order**. Do not run migrations directly against a production branch; staging success is not production approval. Never expose the SQL connection or HMAC secrets to the client.
 3. In each app backend, implement `verifyEngagementEvent({tenant,app,environment,eventId,kind})` that verifies an actual session/completion/crash event and returns `verified`, `eventId`, `kind`, `subject`, `source` and `occurredAt`. The caller may supply only eventId and kind; the callback controls the subject and source. Require analytics consent separately. Avoid double counting value completions recorded by other adapters.
 4. Only after consent infrastructure and authorization are tested, set `enabled:true` on the trusted adapter and `RIVER_CHURN_ENABLED=true` for a QA environment. Production requires the additional explicit flag `RIVER_CHURN_ALLOW_PRODUCTION=true` plus operator approval.
@@ -39,7 +39,7 @@ This is an architecture for helping people achieve verified value, not maximizin
 ### Local example (does not create records or send anything)
 
 ```js
-import {scoreChurnRisk,planConsentSafeRetention} from '@riverthree/riverengine/churn-prediction';
+import {scoreChurnRisk,planConsentSafeRetention} from 'instantengine/churn-prediction';
 const risk=scoreChurnRisk({features:{
   daysSinceOpen:4,activeDays7:1,activeDaysPrev7:4,
   completed7:0,failed7:1,crashes7:0,opens7:1

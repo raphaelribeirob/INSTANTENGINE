@@ -5,7 +5,7 @@ Date: 2026-10-21. Base: archived RIVERENGINE v2.9 QA distribution, new additive 
 | Run | Result |
 |---|---|
 | `npm test` — Node modern suite | 324/324 PASS |
-| `npm test` — InstantStudy bridge | 4/4 PASS |
+| `npm test` — study app bridge | 4/4 PASS |
 | `npm test` — legacy engine | 137/137 PASS |
 | `npm run test:stats` — Python | 9/9 PASS |
 | `npm run test:churn` | 19/19 PASS, included in modern tests |

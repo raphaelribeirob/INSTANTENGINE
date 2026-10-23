@@ -6,7 +6,7 @@ import {createMemoryRepository} from '../src/storage/memory.mjs';
 import {createNeonRepository} from '../src/storage/neon.mjs';
 import {createRiverABExperiments,riverPostHogDistinctId,createPostHogNodeClient} from '../src/integrations/posthog-ab.mjs';
 
-const S={tenant:'river',app:'instantstudy',environment:'test',subject:'anonymous123'},C={flagKey:'daily-goal-v1',variants:['control','test']};
+const S={tenant:'river',app:'study_app',environment:'test',subject:'anonymous123'},C={flagKey:'daily-goal-v1',variants:['control','test']};
 const SECRET='x'.repeat(48);
 const clock={value:new Date('2026-10-21T12:00:00Z')};
 function fixture({flag='test',failFlags=false,failCapture=false,analytics=true,enabled=true,production=false}={}){

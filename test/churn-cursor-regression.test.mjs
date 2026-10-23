@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createChurnDailyJob} from '../src/churn-prediction.mjs';
-const scope={tenant:'riverthree',app:'instantspeak',environment:'test',asOf:'2026-10-20'};
+const scope={tenant:'demo',app:'language_app',environment:'test',asOf:'2026-10-20'};
 const features={daysSinceOpen:2,activeDays7:1,activeDaysPrev7:2,completed7:0,failed7:0,crashes7:0,opens7:1};
 const row=subject=>({subject,features});
 function job(repo){return createChurnDailyJob({enabled:true,now:()=>new Date('2026-10-22T12:00:00Z'),repository:repo});}

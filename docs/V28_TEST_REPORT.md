@@ -3,7 +3,7 @@
 **Data:** 2026-10-21 | **Versão:** v2.8.0 | **Ambiente:** Node.js 22, Python 3 com statsmodels instalado; sem acesso ao registry npm/PyPI.
 
 - 274/274 testes de SDK Node (250 herdados + 24 novos, incluindo os dois critérios de segurança adicionados).
-- 4/4 testes do adaptador legado InstantStudy.
+- 4/4 testes do adaptador legado do app de estudos.
 - 137/137 testes legados R3.
 - 7/7 testes Python Statsmodels/contratos MABWiser.
 - **422/422 testes automatizados** aprovados em laboratório (incluindo os Python).

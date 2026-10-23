@@ -30,7 +30,7 @@
  * observed two-hour conversion, preference pause gate and delivery claim retry guard.
  * 89/89 local checks passed at last run; OneSignal device delivery NOT tested.
  * STAGING OBSERVATIONS (2026-10-16): a distinct Neon PostgreSQL 17 project named
- * R3ENGINE-staging was provisioned for isolated tests, with no Instant app data.
+ * R3ENGINE-staging was provisioned for isolated tests, with no production app data.
  * Real SQL tests passed: schema/functions creation, deduplication, streak once/day,
  * consent opt-in/opt-out, atomic claim and retry suppression, 3 workers claiming
  * the same delivery (exactly one claim), and a 3-per-7-day quota block.
@@ -45,9 +45,9 @@
  *
  * Example private server-only environment (placeholders, not actual secrets):
  *   DATABASE_URL=<postgresql pooled URL>
- *   R3_APP_KEYS_JSON={"instantspeak":"<32+ chars>","instantstudy":"<32+ chars>","instantbible":"<32+ chars>"}
+ *   R3_APP_KEYS_JSON={"language_app":"<32+ chars>","study_app":"<32+ chars>","reading_app":"<32+ chars>"}
  *   CRON_SECRET=<32+ chars>
- *   ONESIGNAL_APPS_JSON={"instantspeak":{"app_id":"<uuid>","rest_api_key":"<key>"}}
+ *   ONESIGNAL_APPS_JSON={"language_app":{"app_id":"<uuid>","rest_api_key":"<key>"}}
  *   R3_PUSH_ENABLED=false
  *
  * Routes: GET /api/health, POST /api/events, DELETE /api/user, GET /api/cron.
@@ -282,7 +282,7 @@ async function uHandler(req,res,{repo=uRepository}={}){
 
 // ---------------- ENGINE ----------------
 /** R3ENGINE: pure decision rules. No tracking of SSID, precise location or sensitive data. */
-const APPS = Object.freeze(['instantspeak', 'instantstudy', 'instantbible']);
+const APPS = Object.freeze(['language_app', 'study_app', 'reading_app']);
 const EVENT_TYPES = Object.freeze([
   'session_started', 'lesson_completed', 'day_completed', 'push_opt_in', 'push_opt_out'
 ]);
@@ -352,12 +352,12 @@ function decideNotification(user,sentLast7d,now=new Date()) {
   const lastDay=user.last_completed_local_date?dateKey(user.last_completed_local_date):localClock(new Date(user.last_active_at),user.timezone).day;
   const daysInactive=dayDifference(current.day,lastDay);
   if(daysInactive<1||daysInactive>7)return null;
-  const kind=daysInactive===1 && Number(user.current_streak)>=2 && user.app!=='instantbible'?'streak_reminder':'return_reminder';
+  const kind=daysInactive===1 && Number(user.current_streak)>=2 && user.app!=='reading_app'?'streak_reminder':'return_reminder';
   return {kind,day:current.day,daysInactive,sendHour:current.hour,riskHeuristic:riskScore(daysInactive)};
 }
 
 const COPY = {
-  instantspeak: {
+  language_app: {
     en: { streak_reminder: ['Keep your speaking streak', 'A short conversation is ready when you are.'], return_reminder: ['Your next conversation is ready', 'Practice a few minutes at your own pace.'] },
     pt: { streak_reminder: ['Continue sua sequência de conversação', 'Uma conversa curta está pronta para você.'], return_reminder: ['Sua próxima conversa está pronta', 'Pratique alguns minutos no seu ritmo.'] },
     es: { streak_reminder: ['Continúa tu racha de conversación', 'Tienes una conversación breve preparada.'], return_reminder: ['Tu próxima conversación está lista', 'Practica unos minutos a tu ritmo.'] },
@@ -366,7 +366,7 @@ const COPY = {
     it: { streak_reminder: ['Continua la tua serie', 'Ti aspetta una breve conversazione.'], return_reminder: ['La prossima conversazione è pronta', 'Esercitati qualche minuto al tuo ritmo.'] },
     ru: { streak_reminder: ['Продолжайте серию занятий', 'Вас ждёт короткий разговор.'], return_reminder: ['Следующий разговор готов', 'Практикуйтесь несколько минут в удобном темпе.'] }
   },
-  instantstudy: {
+  study_app: {
     en: { streak_reminder: ['Keep learning', 'Your next short study session is ready.'], return_reminder: ['Pick up where you left off', 'A small step is enough for today.'] },
     pt: { streak_reminder: ['Continue estudando', 'Sua próxima sessão curta está pronta.'], return_reminder: ['Continue de onde parou', 'Um pequeno passo já conta hoje.'] },
     es: { streak_reminder: ['Sigue aprendiendo', 'Tu próxima sesión breve está lista.'], return_reminder: ['Retoma tus estudios', 'Un pequeño paso cuenta hoy.'] },
@@ -375,7 +375,7 @@ const COPY = {
     it: { streak_reminder: ['Continua a imparare', 'La prossima sessione è pronta.'], return_reminder: ['Riprendi a studiare', 'Bastano pochi minuti.'] },
     ru: { streak_reminder: ['Продолжайте обучение', 'Следующее короткое занятие готово.'], return_reminder: ['Вернитесь к занятиям', 'Достаточно нескольких минут.'] }
   },
-  instantbible: {
+  reading_app: {
     en: { streak_reminder: ['A moment to reflect', 'Continue your reading whenever you like.'], return_reminder: ['Your reading is here', 'Take a quiet moment whenever it suits you.'] },
     pt: { streak_reminder: ['Um momento de reflexão', 'Continue sua leitura quando desejar.'], return_reminder: ['Sua leitura está disponível', 'Reserve um momento tranquilo quando preferir.'] },
     es: { streak_reminder: ['Un momento para reflexionar', 'Continúa tu lectura cuando quieras.'], return_reminder: ['Tu lectura te espera', 'Dedica un momento tranquilo cuando puedas.'] },
@@ -398,9 +398,9 @@ function messageFor(app, locale, kind) {
 
 
 const REMINDER_VARIANTS=Object.freeze({
- instantspeak:{en:{streak_reminder:[['Your practice awaits','A quick conversation is ready.'],['Speak at your pace','Continue your speaking practice when ready.']],return_reminder:[['Pick up speaking','A short conversation is available.'],['Start fresh','A conversation is here when you want.']]},pt:{streak_reminder:[['Continue praticando','Uma conversa curta está disponível.'],['Fale no seu ritmo','Pratique conversação quando desejar.']],return_reminder:[['Retome a conversa','Uma conversa curta está disponível.'],['Recomece com calma','Pratique conversação quando desejar.']]}},
- instantstudy:{en:{streak_reminder:[['Study a little today','Your next activity is ready.'],['Every step counts','Continue learning at your pace.']],return_reminder:[['Resume your learning','An activity is available.'],['Ready when you are','Keep studying whenever you choose.']]},pt:{streak_reminder:[['Estude um pouco hoje','Sua próxima atividade está disponível.'],['Cada passo conta','Continue estudando no seu ritmo.']],return_reminder:[['Retome seus estudos','Uma atividade está disponível.'],['Quando quiser','Continue estudando no seu ritmo.']]}},
- instantbible:{en:{streak_reminder:[['A quiet moment','Read whenever you have time.'],['Your time to reflect','Reading is available at your pace.']],return_reminder:[['A moment for reading','Your reading is here whenever you choose.'],['Take your time','Reflect whenever it feels right.']]},pt:{streak_reminder:[['Um momento de calma','Leia quando tiver tempo.'],['Seu momento de reflexão','Leia no seu ritmo.']],return_reminder:[['Um momento para leitura','Sua leitura está disponível quando desejar.'],['Sem pressa','Reflita no seu tempo.']]}}
+ language_app:{en:{streak_reminder:[['Your practice awaits','A quick conversation is ready.'],['Speak at your pace','Continue your speaking practice when ready.']],return_reminder:[['Pick up speaking','A short conversation is available.'],['Start fresh','A conversation is here when you want.']]},pt:{streak_reminder:[['Continue praticando','Uma conversa curta está disponível.'],['Fale no seu ritmo','Pratique conversação quando desejar.']],return_reminder:[['Retome a conversa','Uma conversa curta está disponível.'],['Recomece com calma','Pratique conversação quando desejar.']]}},
+ study_app:{en:{streak_reminder:[['Study a little today','Your next activity is ready.'],['Every step counts','Continue learning at your pace.']],return_reminder:[['Resume your learning','An activity is available.'],['Ready when you are','Keep studying whenever you choose.']]},pt:{streak_reminder:[['Estude um pouco hoje','Sua próxima atividade está disponível.'],['Cada passo conta','Continue estudando no seu ritmo.']],return_reminder:[['Retome seus estudos','Uma atividade está disponível.'],['Quando quiser','Continue estudando no seu ritmo.']]}},
+ reading_app:{en:{streak_reminder:[['A quiet moment','Read whenever you have time.'],['Your time to reflect','Reading is available at your pace.']],return_reminder:[['A moment for reading','Your reading is here whenever you choose.'],['Take your time','Reflect whenever it feels right.']]},pt:{streak_reminder:[['Um momento de calma','Leia quando tiver tempo.'],['Seu momento de reflexão','Leia no seu ritmo.']],return_reminder:[['Um momento para leitura','Sua leitura está disponível quando desejar.'],['Sem pressa','Reflita no seu tempo.']]}}
 });
 function eligibleVariants(app,locale,kind){
  const lang=typeof locale==='string'?locale.split('-')[0].toLowerCase():'en';
@@ -1062,7 +1062,7 @@ async function cron(req,res,{runner=runCron}={}) {
 const SCHEMA_SQL = String.raw`-- R3ENGINE v0.1: run once on a dedicated Neon branch/database.
 -- PostgreSQL 15+. No raw email, location, Wi-Fi, device fingerprint or message content.
 CREATE TABLE IF NOT EXISTS r3_users (
-  app TEXT NOT NULL CHECK (app IN ('instantspeak','instantstudy','instantbible')),
+  app TEXT NOT NULL CHECK (app IN ('language_app','study_app','reading_app')),
   user_id TEXT NOT NULL,
   locale TEXT NOT NULL DEFAULT 'en',
   timezone TEXT NOT NULL DEFAULT 'UTC',
@@ -1197,7 +1197,7 @@ DECLARE
   v_gap INT;
   v_awarded INT;
 BEGIN
-  IF p_app NOT IN ('instantspeak','instantstudy','instantbible') OR
+  IF p_app NOT IN ('language_app','study_app','reading_app') OR
      p_type NOT IN ('session_started','lesson_completed','day_completed','push_opt_in','push_opt_out') THEN
     RAISE EXCEPTION 'Unknown app/event';
   END IF;
@@ -1721,11 +1721,11 @@ function startServer(){
 function register_audit_tests() {
 const nonce = ()=>randomUUID();
 const now=new Date('2026-10-15T19:15:00Z');
-function eligibleId(app='instantspeak',holdout=false){
+function eligibleId(app='language_app',holdout=false){
  for(let i=0;i<1000;i++){let id=`qa-user-${i}`;if(isHoldout(app,id)===holdout)return id;}
  throw Error('no user in requested group');
 }
-function sample(overrides={}){return {app:'instantspeak',user_id:eligibleId(),push_consent:true,timezone:'UTC',locale:'pt-BR',last_active_at:'2026-10-14T17:00:00Z',current_streak:2,sent_last_7d:0,...overrides};}
+function sample(overrides={}){return {app:'language_app',user_id:eligibleId(),push_consent:true,timezone:'UTC',locale:'pt-BR',last_active_at:'2026-10-14T17:00:00Z',current_streak:2,sent_last_7d:0,...overrides};}
 function event(overrides={}){return {event_id:nonce(),user_id:'opaque_1',type:'day_completed',locale:'pt-BR',timezone:'UTC',...overrides};}
 function withEnv(values,fn){
  const old=Object.fromEntries(Object.keys(values).map(k=>[k,process.env[k]]));
@@ -1737,9 +1737,9 @@ function response(){const res=new EventEmitter();res.headers={};res.setHeader=(k
 async function invoke(route,request,hooks={}){const res=response();await route(request,res,hooks);return res;}
 function req(method='POST',content='',headers={}) {return {method,headers,body:content};}
 function token(){return 'a'.repeat(48);}
-const keyEnv=JSON.stringify({instantspeak:token()});
-const authHeaders={'x-r3-app':'instantspeak',authorization:`Bearer ${token()}`,'content-type':'application/json'};
-const providerEnv=JSON.stringify({instantspeak:{app_id:nonce(),rest_api_key:'rest_key_long_enough'}});
+const keyEnv=JSON.stringify({language_app:token()});
+const authHeaders={'x-r3-app':'language_app',authorization:`Bearer ${token()}`,'content-type':'application/json'};
+const providerEnv=JSON.stringify({language_app:{app_id:nonce(),rest_api_key:'rest_key_long_enough'}});
 
 for(const app of APPS){
  test(`app ${app}: holdout 10% deterministic across 10k IDs`,()=>{
@@ -1771,7 +1771,7 @@ test('window 1..7 calendar days, streak kind and reset',()=>{
  assert.equal(decideNotification(sample({last_active_at:'2026-10-15T00:01:00Z'}),0,now),null);
  assert.equal(decideNotification(sample({push_consent:false}),0,now),null);
  assert.equal(decideNotification(sample({sent_last_7d:3}),3,now),null);
- assert.equal(decideNotification(sample({user_id:eligibleId('instantspeak',true)}),0,now),null);
+ assert.equal(decideNotification(sample({user_id:eligibleId('language_app',true)}),0,now),null);
  assert.equal(decideNotification(sample({timezone:'Asia/Tokyo'}),0,now),null);
 });
 test('translated notification text exists in supported product languages',()=>{
@@ -1780,22 +1780,22 @@ test('translated notification text exists in supported product languages',()=>{
    const m=messageFor(app,loc,'streak_reminder');assert.ok(m.title.length>4 && m.body.length>10);
   }
  }
- assert.equal(messageFor('instantstudy','ja-JP','return_reminder').language,'en');
- assert.throws(()=>messageFor('instantspeak','en','unrecognized'));
+ assert.equal(messageFor('study_app','ja-JP','return_reminder').language,'en');
+ assert.throws(()=>messageFor('language_app','en','unrecognized'));
 });
 test('auth rejects raw secret, extra whitespace, incorrect app and missing config',()=>withEnv({R3_APP_KEYS_JSON:keyEnv},()=>{
- assert.equal(authenticateApp({headers:{'x-r3-app':'instantspeak',authorization:`Bearer ${token()}`}}),'instantspeak');
+ assert.equal(authenticateApp({headers:{'x-r3-app':'language_app',authorization:`Bearer ${token()}`}}),'language_app');
  for(const bad of [token(),`Basic ${token()}`,`Bearer  ${token()}`,`Bearer ${token()} `])
-  assert.equal(authenticateApp({headers:{'x-r3-app':'instantspeak',authorization:bad}}),null);
- assert.throws(()=>authenticateApp({headers:{'x-r3-app':'instantstudy',authorization:`Bearer ${token()}`}}),/missing or too short/);
+  assert.equal(authenticateApp({headers:{'x-r3-app':'language_app',authorization:bad}}),null);
+ assert.throws(()=>authenticateApp({headers:{'x-r3-app':'study_app',authorization:`Bearer ${token()}`}}),/missing or too short/);
 }));
 test('cron is denied by default and accepts only configured valid secret',()=>withEnv({CRON_SECRET:'Z'.repeat(48)},()=>{
  assert.equal(cronAuthorized({headers:{authorization:'Bearer '+'Z'.repeat(48)}}),true);
  assert.equal(cronAuthorized({headers:{authorization:'Bearer '+'A'.repeat(48)}}),false);
 }));
 test('provider config rejects malformed ids and too-short credentials',()=>{
- assert.throws(()=>withEnv({ONESIGNAL_APPS_JSON:JSON.stringify({instantspeak:{app_id:'bad',rest_api_key:'123456789101112'}})},getOneSignalApps));
- assert.deepEqual(Object.keys(withEnv({ONESIGNAL_APPS_JSON:providerEnv},getOneSignalApps)),['instantspeak']);
+ assert.throws(()=>withEnv({ONESIGNAL_APPS_JSON:JSON.stringify({language_app:{app_id:'bad',rest_api_key:'123456789101112'}})},getOneSignalApps));
+ assert.deepEqual(Object.keys(withEnv({ONESIGNAL_APPS_JSON:providerEnv},getOneSignalApps)),['language_app']);
 });
 test('HTTP authenticates BEFORE processing malformed request bodies',async()=>withEnv({R3_APP_KEYS_JSON:keyEnv},async()=>{
  const unauth=await invoke(events,req('POST','not-json'));
@@ -1807,7 +1807,7 @@ test('HTTP authenticates BEFORE processing malformed request bodies',async()=>wi
 }));
 test('HTTP validates Content-Type, payload size and successful insert/dedup',async()=>withEnv({R3_APP_KEYS_JSON:keyEnv},async()=>{
  const id=nonce();let writes=0;
- const hooks={ingestEvent:async(app,ev)=>{assert.equal(app,'instantspeak');assert.equal(ev.event_id,id);return ++writes===1;}};
+ const hooks={ingestEvent:async(app,ev)=>{assert.equal(app,'language_app');assert.equal(ev.event_id,id);return ++writes===1;}};
  const payload=JSON.stringify(event({event_id:id}));
  let res=await invoke(events,req('POST',payload,authHeaders),hooks);
  assert.equal(res.statusCode,201);assert.equal(res.body.inserted,true);
@@ -1829,7 +1829,7 @@ test('DELETE user endpoint is tenant-bound and gives deterministic response',asy
  const removeUser=async(app,id)=>{deleted.push([app,id]);return true;};
  const res=await invoke(user,req('DELETE',JSON.stringify({user_id:'opaque_1'}),authHeaders),{removeUser});
  assert.equal(res.statusCode,200);assert.equal(res.body.deleted,true);
- assert.deepEqual(deleted,[['instantspeak','opaque_1']]);
+ assert.deepEqual(deleted,[['language_app','opaque_1']]);
  assert.equal((await invoke(user,req('DELETE',JSON.stringify({user_id:'person@example.com'}),authHeaders),{removeUser})).statusCode,400);
 }));
 test('cron endpoint checks secret and never invokes runner unauthenticated',async()=>withEnv({CRON_SECRET:'Q'.repeat(40)},async()=>{
@@ -1839,7 +1839,7 @@ test('cron endpoint checks secret and never invokes runner unauthenticated',asyn
  assert.equal(res.statusCode,200);assert.equal(calls,1);
 }));
 test('OneSignal: zero recipients, API errors, no ID never get marked sent',async()=>{
- const args={job:{id:nonce(),app:'instantspeak',user_id:'opaque_1',kind:'return_reminder'},locale:'ja-JP',appConfig:{app_id:nonce(),rest_api_key:'1234567890123'}};
+ const args={job:{id:nonce(),app:'language_app',user_id:'opaque_1',kind:'return_reminder'},locale:'ja-JP',appConfig:{app_id:nonce(),rest_api_key:'1234567890123'}};
  for(const body of [{id:'id',recipients:0},{errors:['no subscribed players']},{id:null}]){
   const result=await sendOneSignal({...args,fetcher:async()=>({ok:true,json:async()=>body})});
   assert.equal(result.sent,false);
@@ -1847,13 +1847,13 @@ test('OneSignal: zero recipients, API errors, no ID never get marked sent',async
  let payload;
  await sendOneSignal({...args,fetcher:async(u,init)=>{payload=JSON.parse(init.body);return {ok:true,json:async()=>({id:'s',recipients:1})};}});
  assert.deepEqual(Object.keys(payload.headings),['en']);
- assert.equal(payload.contents.en,messageFor('instantspeak','en','return_reminder').body);
+ assert.equal(payload.contents.en,messageFor('language_app','en','return_reminder').body);
 });
 function simpleRepo({rows=[sample()],retry=[],reserve=null,claim=null}={}){
  const data={reserve:0,claim:0,sent:0,failed:0,skipped:0};
  return {data, listRetries:async()=>retry, listCandidates:async()=>rows,
   reserve:async(app,id,day,kind)=>{data.reserve++;return reserve?reserve(app,id,day,kind):{id:nonce(),app,user_id:id,kind};},
-  claim:async(id)=>{data.claim++;return claim?claim(id):{id,app:'instantspeak',user_id:eligibleId(),kind:'streak_reminder',attempts:1};},
+  claim:async(id)=>{data.claim++;return claim?claim(id):{id,app:'language_app',user_id:eligibleId(),kind:'streak_reminder',attempts:1};},
   preflight:async()=>true,markSent:async()=>{data.sent++;return true;},markFailed:async(id,err,skipped)=>{if(skipped)data.skipped++;else data.failed++;return true;}};
 }
 async function enabled(fn){return withEnv({R3_PUSH_ENABLED:'true',ONESIGNAL_APPS_JSON:providerEnv},fn);}
@@ -1873,7 +1873,7 @@ test('cron respects 100 delivery bound with 150 eligible candidates',async()=>en
  assert.equal(repo.data.sent,stats.processed);
 }));
 test('cron does not reserve invalid cohort, exhausted cap or same-day active',async()=>enabled(async()=>{
- const rows=[sample({user_id:eligibleId('instantspeak',true)}),sample({sent_last_7d:3}),sample({last_active_at:now.toISOString()})];
+ const rows=[sample({user_id:eligibleId('language_app',true)}),sample({sent_last_7d:3}),sample({last_active_at:now.toISOString()})];
  const repo=simpleRepo({rows});
  const stats=await runCron(now,{db:repo,send:async()=>{throw Error('should not send');}});
  assert.equal(stats.processed,0);assert.equal(repo.data.reserve,0);
@@ -1887,12 +1887,12 @@ test('cron skips claimed jobs invalidated by DB before dispatch',async()=>enable
 }
 function register_engine_tests() {
 const now = new Date('2026-10-15T19:30:00Z');
-function treatmentId(app='instantspeak') {
+function treatmentId(app='language_app') {
   for(let i=0;i<1000;i++) if(!isHoldout(app,`user-${i}`))return `user-${i}`;
   throw new Error('No treatment found');
 }
 function sample(overrides={}) {
-  return {app:'instantspeak',user_id:treatmentId(),push_consent:true,timezone:'UTC',locale:'pt-BR',last_active_at:'2026-10-14T19:00:00.000Z',current_streak:2,...overrides};
+  return {app:'language_app',user_id:treatmentId(),push_consent:true,timezone:'UTC',locale:'pt-BR',last_active_at:'2026-10-14T19:00:00.000Z',current_streak:2,...overrides};
 }
 test('accepts canonical event and rejects invalid inputs',()=>{
   const base={event_id:randomUUID(),user_id:'opaque_72',type:'lesson_completed',timezone:'America/Sao_Paulo',locale:'pt-BR'};
@@ -1917,7 +1917,7 @@ test('eligibility: quiet hour, no consent, cap, same-day activity, hiatus',()=>{
   assert.equal(decideNotification(sample({last_active_at:'2026-10-05T11:00:00Z'}),0,now),null);
 });
 test('10% holdout is stable and excluded',()=>{
-  const app='instantspeak';
+  const app='language_app';
   const control=Array.from({length:200},(_,i)=>`cohort-${i}`).find(x=>isHoldout(app,x));
   assert.ok(control);
   assert.equal(decideNotification(sample({user_id:control}),0,now),null);
@@ -1932,8 +1932,8 @@ test('copy localized for every app; unknown locale falls back to en',()=>{
       }
     }
   }
-  assert.equal(messageFor('instantspeak','ja-JP','return_reminder').language,'en');
-  assert.equal(messageFor('instantspeak','ja-JP','return_reminder').title,messageFor('instantspeak','en','return_reminder').title);
+  assert.equal(messageFor('language_app','ja-JP','return_reminder').language,'en');
+  assert.equal(messageFor('language_app','ja-JP','return_reminder').title,messageFor('language_app','en','return_reminder').title);
 });
 test('risk is bounded heuristic, not a machine learning output',()=>{
   assert.equal(riskScore(0),0.15);
@@ -1953,14 +1953,14 @@ async function invoke(handler,req) {
 test('safe secret comparison',()=>{assert.equal(safeEqual('abc','abc'),true);assert.equal(safeEqual('abc','ab'),false);assert.equal(safeEqual('abc','xyz'),false);});
 test('app headers authenticate against server-only keys',()=>{
   const previous=process.env.R3_APP_KEYS_JSON;
-  process.env.R3_APP_KEYS_JSON=JSON.stringify({instantspeak:'a'.repeat(50),instantstudy:'b'.repeat(50)});
+  process.env.R3_APP_KEYS_JSON=JSON.stringify({language_app:'a'.repeat(50),study_app:'b'.repeat(50)});
   try{
-    assert.equal(authenticateApp({headers:{'x-r3-app':'instantspeak',authorization:`Bearer ${'a'.repeat(50)}`}}),'instantspeak');
-    assert.equal(authenticateApp({headers:{'x-r3-app':'instantstudy',authorization:'Bearer abc'}}),null);
+    assert.equal(authenticateApp({headers:{'x-r3-app':'language_app',authorization:`Bearer ${'a'.repeat(50)}`}}),'language_app');
+    assert.equal(authenticateApp({headers:{'x-r3-app':'study_app',authorization:'Bearer abc'}}),null);
   }finally{if(previous===undefined)delete process.env.R3_APP_KEYS_JSON;else process.env.R3_APP_KEYS_JSON=previous;}
 });
 test('events and cron require authentication and the correct method',async()=>{
-  const res1=await invoke(events,{method:'POST',headers:{'x-r3-app':'instantspeak',authorization:'Bearer invalid'}});
+  const res1=await invoke(events,{method:'POST',headers:{'x-r3-app':'language_app',authorization:'Bearer invalid'}});
   assert.ok([401,503].includes(res1.statusCode));
   const res2=await invoke(events,{method:'GET',headers:{}});
   assert.equal(res2.statusCode,405);
@@ -1971,7 +1971,7 @@ test('events and cron require authentication and the correct method',async()=>{
 }
 function register_provider_tests() {
 const fakeApp={app_id:randomUUID(),rest_api_key:'EXAMPLE_KEY_NOT_REAL'};
-const fakeJob={id:randomUUID(),app:'instantstudy',user_id:'opaque_1',kind:'return_reminder'};
+const fakeJob={id:randomUUID(),app:'study_app',user_id:'opaque_1',kind:'return_reminder'};
 
 test('OneSignal payload uses alias targeting and fixed idempotency key',async()=>{
   let sent;
@@ -1998,7 +1998,7 @@ test('OneSignal errors are not swallowed',async()=>{
 
 }
 function register_service_tests() {
-const app='instantbible';
+const app='reading_app';
 const userId=Array.from({length:100},(_,i)=>`usr_${i}`).find(x=>!isHoldout(app,x));
 const now=new Date('2026-10-15T19:00:00Z');
 
@@ -2011,7 +2011,7 @@ test('kill switch prevents provider access even if cron runs',async()=>{
 test('cron reserves, claims, and sends a single eligible campaign',async()=>{
   const env={R3_PUSH_ENABLED:process.env.R3_PUSH_ENABLED,ONESIGNAL_APPS_JSON:process.env.ONESIGNAL_APPS_JSON};
   process.env.R3_PUSH_ENABLED='true';
-  process.env.ONESIGNAL_APPS_JSON=JSON.stringify(Object.fromEntries(['instantspeak','instantstudy','instantbible'].map(a=>[a,{app_id:randomUUID(),rest_api_key:'1234567890123456'}])));
+  process.env.ONESIGNAL_APPS_JSON=JSON.stringify(Object.fromEntries(['language_app','study_app','reading_app'].map(a=>[a,{app_id:randomUUID(),rest_api_key:'1234567890123456'}])));
   const row={app,user_id:userId,push_consent:true,timezone:'UTC',locale:'en',current_streak:0,last_active_at:'2026-10-14T17:00:00Z',sent_last_7d:0};
   const id=randomUUID();
   let reserved=0,claimed=0,sent=0;
@@ -2035,9 +2035,9 @@ test('cron reserves, claims, and sends a single eligible campaign',async()=>{
 async function smokeHTTP(){
  const token=randomUUID()+randomUUID();const secret=randomUUID()+randomUUID();
  const prior={...process.env};
- process.env.R3_PUSH_ENABLED='false';process.env.R3_APP_KEYS_JSON=JSON.stringify({instantspeak:token});
+ process.env.R3_PUSH_ENABLED='false';process.env.R3_APP_KEYS_JSON=JSON.stringify({language_app:token});
  process.env.CRON_SECRET=secret;delete process.env.DATABASE_URL;
- process.env.R3_VERIFIED_OFFERS_JSON=JSON.stringify({instantspeak:{lesson_pack:{active:true,currency:'BRL',public_price_minor:2000,member_price_minor:1500,terms_url:'https://example.org/terms'}}});
+ process.env.R3_VERIFIED_OFFERS_JSON=JSON.stringify({language_app:{lesson_pack:{active:true,currency:'BRL',public_price_minor:2000,member_price_minor:1500,terms_url:'https://example.org/terms'}}});
  const server=createServer();
  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
  const base=`http://127.0.0.1:${server.address().port}`;
@@ -2057,11 +2057,11 @@ async function smokeHTTP(){
    assert.equal((await call('/api/user','DELETE',{'content-type':'application/json'},'{}')).status,401);checks++;
    assert.equal((await call('/api/cron')).status,401);checks++;
    r=await call('/api/cron','GET',{authorization:`Bearer ${secret}`});assert.deepEqual(r.body,{enabled:false,processed:0,sent:0,failed:0,skipped:0,uncertain:0});checks++;
-   r=await call('/api/events','POST',{'content-type':'application/json','x-r3-app':'instantspeak',authorization:`Bearer ${token}`},
+   r=await call('/api/events','POST',{'content-type':'application/json','x-r3-app':'language_app',authorization:`Bearer ${token}`},
     JSON.stringify({event_id:randomUUID(),user_id:'opaque_1',type:'session_started',timezone:'UTC',locale:'en'}));
    assert.equal(r.status,503);checks++;
    assert.equal(r.body.error,'Event persistence unavailable');checks++;
-   const auth={'content-type':'application/json','x-r3-app':'instantspeak',authorization:`Bearer ${token}`};
+   const auth={'content-type':'application/json','x-r3-app':'language_app',authorization:`Bearer ${token}`};
    r=await call('/api/offer','POST',auth,JSON.stringify({sku:'lesson_pack'}));
    assert.equal(r.status,200);checks++;
    assert.equal(r.body.gross_price_difference_minor,500);checks++;
@@ -2081,7 +2081,7 @@ async function smokeHTTP(){
 }
 function register_additional_tests(){
  test('OneSignal rejects error objects and zero recipients expressed as string',async()=>{
-   const job={id:randomUUID(),app:'instantspeak',user_id:'opaque_1',kind:'return_reminder'};
+   const job={id:randomUUID(),app:'language_app',user_id:'opaque_1',kind:'return_reminder'};
    const config={app_id:randomUUID(),rest_api_key:'test_key_fake_1234567'};
    for(const reply of [{id:'abc',errors:{invalid_aliases:{external_id:['unknown']}}},{id:'abc',recipients:'0'}]){
     const result=await sendOneSignal({job,locale:'en',appConfig:config,fetcher:async()=>({ok:true,json:async()=>reply})});
@@ -2090,8 +2090,8 @@ function register_additional_tests(){
  });
  test('cron recovers when status persistence fails after provider acceptance',async()=>{
    const original={R3_PUSH_ENABLED:process.env.R3_PUSH_ENABLED,ONESIGNAL_APPS_JSON:process.env.ONESIGNAL_APPS_JSON};
-   const app='instantspeak';const id=Array.from({length:100},(_,i)=>`r3-retry-${i}`).find(x=>!isHoldout(app,x));
-   process.env.R3_PUSH_ENABLED='true';process.env.ONESIGNAL_APPS_JSON=JSON.stringify({instantspeak:{app_id:randomUUID(),rest_api_key:'test_secret_1234567'}});
+   const app='language_app';const id=Array.from({length:100},(_,i)=>`r3-retry-${i}`).find(x=>!isHoldout(app,x));
+   process.env.R3_PUSH_ENABLED='true';process.env.ONESIGNAL_APPS_JSON=JSON.stringify({language_app:{app_id:randomUUID(),rest_api_key:'test_secret_1234567'}});
    let failRecords=0;
    const row={id:randomUUID(),app,user_id:id,attempts:1,push_consent:true,timezone:'UTC',locale:'en',last_active_at:'2026-10-14T00:00:00Z',current_streak:0,sent_last_7d:0,kind:'return_reminder'};
    const repo={listRetries:async()=>[row],listCandidates:async()=>[],reserve:async()=>null,claim:async()=>row,
@@ -2123,11 +2123,11 @@ function register_additional_tests(){
 
 function register_deep_tests() {
   const at=new Date('2026-10-15T19:00:00Z');
-  const raw={app:'instantspeak',user_id:'secure_1',kind:'return_reminder',id:randomUUID(),attempts:1,locale:'en'};
+  const raw={app:'language_app',user_id:'secure_1',kind:'return_reminder',id:randomUUID(),attempts:1,locale:'en'};
   function inProvider(fn){
     const previous={R3_PUSH_ENABLED:process.env.R3_PUSH_ENABLED,ONESIGNAL_APPS_JSON:process.env.ONESIGNAL_APPS_JSON};
     process.env.R3_PUSH_ENABLED='true';
-    process.env.ONESIGNAL_APPS_JSON=JSON.stringify({instantspeak:{app_id:randomUUID(),rest_api_key:'one_signal_fake_key_01234567890'}});
+    process.env.ONESIGNAL_APPS_JSON=JSON.stringify({language_app:{app_id:randomUUID(),rest_api_key:'one_signal_fake_key_01234567890'}});
     const restore=()=>{for(const [k,v] of Object.entries(previous)){if(v===undefined)delete process.env[k];else process.env[k]=v;}};
     try {const result=fn();return result && typeof result.finally==='function'?result.finally(restore):(restore(),result);}catch(err){restore();throw err;}
   }
@@ -2226,8 +2226,8 @@ function register_db_adapter_tests(){
       calls.push({query,args});
       if (query.includes('SELECT r3_ingest_event'))return [{inserted:true}];
       if (query.includes('SELECT r3_delete_user'))return [{deleted:true}];
-      if (query.includes('SELECT u.app,u.user_id'))return [{app:'instantspeak',user_id:'u'}];
-      if (query.includes('SELECT d.id,d.app,d.user_id'))return [{id:randomUUID(),app:'instantspeak'}];
+      if (query.includes('SELECT u.app,u.user_id'))return [{app:'language_app',user_id:'u'}];
+      if (query.includes('SELECT d.id,d.app,d.user_id'))return [{id:randomUUID(),app:'language_app'}];
       if (query.includes('INSERT INTO r3_deliveries'))return [{id:randomUUID()}];
       if (query.includes('SELECT * FROM r3_claim_delivery'))return [{id:randomUUID(),attempts:1}];
       if (query.includes('AS eligible'))return [{eligible:true}];
@@ -2240,11 +2240,11 @@ function register_db_adapter_tests(){
   }
   test('all SQL adapter operations use bind parameters; no untrusted user interpolation',async()=>mockDatabase(async calls=>{
     const ev={event_id:randomUUID(),user_id:'qa_id',type:'session_started',locale:'en',timezone:'UTC'};
-    assert.equal(await ingest('instantspeak',ev),true);
-    assert.equal(await deleteUser('instantspeak','qa_id'),true);
+    assert.equal(await ingest('language_app',ev),true);
+    assert.equal(await deleteUser('language_app','qa_id'),true);
     assert.equal((await listCandidates()).length,1);
     assert.equal((await listRetries()).length,1);
-    assert.ok((await reserve('instantspeak','qa_id','2026-10-16','return_reminder')).id);
+    assert.ok((await reserve('language_app','qa_id','2026-10-16','return_reminder')).id);
     assert.ok((await claim(randomUUID())).id);
     assert.equal(await preflight({id:randomUUID(),attempts:1}),true);
     assert.equal(await markSent(randomUUID(),'prv_1',1),true);
@@ -2260,9 +2260,9 @@ function register_db_adapter_tests(){
     const previous=sql;
     sql=async(strings,...args)=>[];
     try{
-      assert.equal(await ingest('instantspeak',{event_id:randomUUID(),user_id:'user',type:'day_completed',locale:'en',timezone:'UTC'}),false);
-      assert.equal(await deleteUser('instantspeak','user'),false);
-      assert.equal(await reserve('instantspeak','user','2026-10-16','return_reminder'),null);
+      assert.equal(await ingest('language_app',{event_id:randomUUID(),user_id:'user',type:'day_completed',locale:'en',timezone:'UTC'}),false);
+      assert.equal(await deleteUser('language_app','user'),false);
+      assert.equal(await reserve('language_app','user','2026-10-16','return_reminder'),null);
       assert.equal(await claim(randomUUID()),null);
       assert.equal(await preflight({id:randomUUID(),attempts:1}),false);
       assert.equal(await markSent(randomUUID(),'provider',1),false);
@@ -2285,7 +2285,7 @@ function register_db_adapter_tests(){
 }
 
 function register_duolingo_parity_tests(){
- const base={app:'instantspeak',user_id:'a_verified_user',last_completed_local_date:'2026-10-15',current_streak:7,longest_streak:9,freeze_balance:1,daily_goal:2,lessons_total:14,today_lessons:1,active_days_7d:4,earned_milestones:[7]};
+ const base={app:'language_app',user_id:'a_verified_user',last_completed_local_date:'2026-10-15',current_streak:7,longest_streak:9,freeze_balance:1,daily_goal:2,lessons_total:14,today_lessons:1,active_days_7d:4,earned_milestones:[7]};
  test('Duolingo parity: lesson extends streak in transactional SQL without raising daily target',()=>{
    assert.match(SCHEMA_SQL,/p_type IN \('lesson_completed','day_completed'\)/);
    assert.match(SCHEMA_SQL,/v_gap=1 THEN v_new_streak:=v_old_streak\+1/);
@@ -2337,12 +2337,12 @@ function register_duolingo_parity_tests(){
  });
  test('Duolingo parity: progress API exposes only pseudonymous metrics, no personal content',async()=>{
    const old=process.env.R3_APP_KEYS_JSON;
-   process.env.R3_APP_KEYS_JSON=JSON.stringify({instantspeak:'z'.repeat(48)});
+   process.env.R3_APP_KEYS_JSON=JSON.stringify({language_app:'z'.repeat(48)});
    try{
-     const req={method:'GET',headers:{'x-r3-app':'instantspeak',authorization:`Bearer ${'z'.repeat(48)}`},url:'/api/progress?user_id=a_verified_user'};
+     const req={method:'GET',headers:{'x-r3-app':'language_app',authorization:`Bearer ${'z'.repeat(48)}`},url:'/api/progress?user_id=a_verified_user'};
      const res=new EventEmitter();res.setHeader=()=>{};res.end=x=>res.body=JSON.parse(x);
      await progress(req,res,{getProgress:async(app,id)=>{
-       assert.equal(app,'instantspeak');assert.equal(id,'a_verified_user');return progressView(base,'2026-10-15');
+       assert.equal(app,'language_app');assert.equal(id,'a_verified_user');return progressView(base,'2026-10-15');
      }});
      assert.equal(res.statusCode,200);assert.equal(res.body.quests.one_lesson,true);
      assert.ok(!('email' in res.body));
@@ -2350,11 +2350,11 @@ function register_duolingo_parity_tests(){
  });
  test('Duolingo parity: goal API writes validated target and rejects wrong method',async()=>{
    const old=process.env.R3_APP_KEYS_JSON;
-   process.env.R3_APP_KEYS_JSON=JSON.stringify({instantstudy:'k'.repeat(48)});
+   process.env.R3_APP_KEYS_JSON=JSON.stringify({study_app:'k'.repeat(48)});
    try{
-     const headers={'x-r3-app':'instantstudy',authorization:`Bearer ${'k'.repeat(48)}`,'content-type':'application/json'};
+     const headers={'x-r3-app':'study_app',authorization:`Bearer ${'k'.repeat(48)}`,'content-type':'application/json'};
      const mk=()=>{const res=new EventEmitter();res.setHeader=()=>{};res.end=x=>res.body=JSON.parse(x);return res;};
-     const res=mk();await goal({method:'PUT',headers,body:{user_id:'opaque',target:4}},res,{saveGoal:async(app,id,val)=>app==='instantstudy' && id==='opaque'&&val===4});
+     const res=mk();await goal({method:'PUT',headers,body:{user_id:'opaque',target:4}},res,{saveGoal:async(app,id,val)=>app==='study_app' && id==='opaque'&&val===4});
      assert.equal(res.statusCode,200);assert.equal(res.body.target,4);
      const invalid=mk();await goal({method:'PUT',headers,body:{user_id:'opaque',target:0}},invalid,{saveGoal:async()=>{throw Error('Should not persist');}});
      assert.equal(invalid.statusCode,400);
@@ -2371,8 +2371,8 @@ function register_duolingo_parity_tests(){
 
 function register_v06_tests(){
  const now=new Date('2026-10-17T19:30:00Z');
- function treatment(app='instantspeak'){for(let i=0;i<1000;i++){const id=`v06-${i}`;if(!isHoldout(app,id))return id;}throw Error('not found');}
- function u(override={}){return {app:'instantspeak',user_id:treatment(),locale:'pt-BR',timezone:'UTC',push_consent:true,
+ function treatment(app='language_app'){for(let i=0;i<1000;i++){const id=`v06-${i}`;if(!isHoldout(app,id))return id;}throw Error('not found');}
+ function u(override={}){return {app:'language_app',user_id:treatment(),locale:'pt-BR',timezone:'UTC',push_consent:true,
   last_active_at:'2026-10-16T10:00:00Z',last_completed_local_date:'2026-10-16',current_streak:3,...override};}
  test('V06 preferred hour overrides learned hour',()=>{
   const x=u({reminder_hour:11,learned_hour:19,hourly_samples:100});
@@ -2410,16 +2410,16 @@ function register_v06_tests(){
  test('V06 universal hard protections: consent, holdout and 7-day cap',()=>{
   assert.equal(decideNotification(u({push_consent:false}),0,now),null);
   assert.equal(decideNotification(u(),3,now),null);
-  const id=Array.from({length:1000},(_,i)=>`holdout-${i}`).find(id=>isHoldout('instantspeak',id));
+  const id=Array.from({length:1000},(_,i)=>`holdout-${i}`).find(id=>isHoldout('language_app',id));
   assert.equal(decideNotification(u({user_id:id}),0,now),null);
  });
  test('V06 long lapse 8+ days correctly blocked',()=>{
   assert.equal(decideNotification(u({last_completed_local_date:'2026-10-08'}),0,now),null);
  });
  test('V06 Bible uses supportive category, no pressure about losing streak',()=>{
-  const x=u({app:'instantbible',user_id:treatment('instantbible')});
+  const x=u({app:'reading_app',user_id:treatment('reading_app')});
   assert.equal(decideNotification(x,0,now)?.kind,'return_reminder');
-  for(const id of [0,1,2])assert.doesNotMatch(messageVariant('instantbible','pt-BR','return_reminder',id).body,/perca.*sequência|lose.*streak/i);
+  for(const id of [0,1,2])assert.doesNotMatch(messageVariant('reading_app','pt-BR','return_reminder',id).body,/perca.*sequência|lose.*streak/i);
  });
  test('V06 three real localized variants for both pilot languages, all apps',()=>{
   for(const app of APPS)for(const lang of ['pt-BR','en'])for(const kind of ['streak_reminder','return_reminder']){
@@ -2427,7 +2427,7 @@ function register_v06_tests(){
    assert.equal(new Set(msgs.map(m=>m.title)).size,3,`${app}/${lang}/${kind}: duplicate title`);
    assert.equal(new Set(msgs.map(m=>m.body)).size,3,`${app}/${lang}/${kind}: duplicate body`);
   }
-  assert.deepEqual(eligibleVariants('instantspeak','fr','return_reminder'),[0]);
+  assert.deepEqual(eligibleVariants('language_app','fr','return_reminder'),[0]);
  });
  test('V06 bandit learns strong performing arm from mature conversions',()=>{
   const row=u({variant_stats:{'streak_reminder:0':{views:100,successes:1},
@@ -2448,14 +2448,14 @@ function register_v06_tests(){
   assert.equal(selectVariant(row,'streak_reminder','2026-10-17'),picked);
  });
  test('V06 OneSignal payload uses reserved variant and delivery idempotency',async()=>{
-  const job={id:randomUUID(),app:'instantspeak',user_id:'opaque',kind:'return_reminder',variant_id:2};
+  const job={id:randomUUID(),app:'language_app',user_id:'opaque',kind:'return_reminder',variant_id:2};
   let body;
   await sendOneSignal({job,locale:'pt-BR',appConfig:{app_id:randomUUID(),rest_api_key:'api-key-long-enough'},
    fetcher:async(_,req)=>{body=JSON.parse(req.body);return {ok:true,json:async()=>({id:'provider',recipients:1})};}});
   assert.equal(body.idempotency_key,job.id);
   assert.equal(body.data.r3_variant,'2');
   assert.equal(body.data.r3_delivery_id,job.id);
-  assert.equal(body.contents.en,messageVariant('instantspeak','pt-BR','return_reminder',2).body);
+  assert.equal(body.contents.en,messageVariant('language_app','pt-BR','return_reminder',2).body);
  });
  test('V06 preferences disallow bad times, indefinite pauses or invalid bodies',()=>{
   const good={user_id:'opaque'};
@@ -2479,7 +2479,7 @@ function register_v06_tests(){
  });
  test('V06 cron records arm before send',async()=>{
   const oldPush=process.env.R3_PUSH_ENABLED,oldApps=process.env.ONESIGNAL_APPS_JSON;
-  process.env.R3_PUSH_ENABLED='true';process.env.ONESIGNAL_APPS_JSON=JSON.stringify({instantspeak:{app_id:randomUUID(),rest_api_key:'valid-test-rest-key'}});
+  process.env.R3_PUSH_ENABLED='true';process.env.ONESIGNAL_APPS_JSON=JSON.stringify({language_app:{app_id:randomUUID(),rest_api_key:'valid-test-rest-key'}});
   let reserved;let seen;
   const row=u();
   const repo={listRetries:async()=>[],listCandidates:async()=>[row],
@@ -2497,18 +2497,18 @@ function register_v06_tests(){
 function register_v06_http_tests(){
  test('V06 reminder preferences HTTP API authenticates before decoding invalid payload',async()=>{
   const old=process.env.R3_APP_KEYS_JSON;
-  process.env.R3_APP_KEYS_JSON=JSON.stringify({instantspeak:'K'.repeat(48)});
+  process.env.R3_APP_KEYS_JSON=JSON.stringify({language_app:'K'.repeat(48)});
   const response=()=>{const r=new EventEmitter();r.setHeader=()=>{};r.end=d=>{r.body=JSON.parse(d);};return r;};
   const request=(headers,body,method='PUT')=>({method,headers,body});
   try{
    let res=response();await reminders(request({'content-type':'application/json'},'{'),res,{savePreferences:async()=>{throw Error('never');}});
    assert.equal(res.statusCode,401);
-   const auth={'x-r3-app':'instantspeak',authorization:'Bearer '+'K'.repeat(48),'content-type':'application/json'};
+   const auth={'x-r3-app':'language_app',authorization:'Bearer '+'K'.repeat(48),'content-type':'application/json'};
    res=response();await reminders(request(auth,JSON.stringify({user_id:'opaque-id',reminder_hour:99})),res,{savePreferences:async()=>{throw Error('never');}});
    assert.equal(res.statusCode,400);
    let saved;res=response();await reminders(request(auth,JSON.stringify({user_id:'opaque-id',reminder_hour:10})),res,
     {savePreferences:async(app,user,pref)=>{saved={app,user,pref};return true;}});
-   assert.equal(res.statusCode,200);assert.equal(saved.app,'instantspeak');assert.equal(saved.pref.reminder_hour,10);
+   assert.equal(res.statusCode,200);assert.equal(saved.app,'language_app');assert.equal(saved.pref.reminder_hour,10);
   }finally{if(old===undefined)delete process.env.R3_APP_KEYS_JSON;else process.env.R3_APP_KEYS_JSON=old;}
  });
  test('V06 no backend or push credential is exposed in health and preferences responses',async()=>{
@@ -2567,22 +2567,22 @@ function register_v07_tests(){
  });
  test('V07 journey progress is measured, with no imaginary ETA',()=>{
   const progress={daily_goal:{completed:2,target:3,met:false},quests:{weekly_days:4},xp_total:80};
-  const j=journeyView(progress,'instantspeak');
+  const j=journeyView(progress,'language_app');
   assert.deepEqual(j.stages.map(x=>x.done),[true,false,false]);assert.equal(j.next_action,'daily_goal');
   assert.equal(j.estimate,null);
-  assert.equal(journeyView({daily_goal:{completed:3,target:3,met:true},quests:{weekly_days:5},xp_total:100},'instantstudy').next_action,'continue_learning');
-  assert.throws(()=>journeyView(null,'instantspeak'));
+  assert.equal(journeyView({daily_goal:{completed:3,target:3,met:true},quests:{weekly_days:5},xp_total:100},'study_app').next_action,'continue_learning');
+  assert.throws(()=>journeyView(null,'language_app'));
  });
  test('V07 first-lesson milestone persists after midnight based on verified lifetime lessons',()=>{
   const p={daily_goal:{completed:0,target:2,met:false},quests:{weekly_days:1},xp_total:10};
-  const j=journeyView(p,'instantbible');
+  const j=journeyView(p,'reading_app');
   assert.equal(j.stages[0].done,true);assert.equal(j.next_action,'daily_goal');
   assert.equal(j.estimate,null);
  });
  test('V07 verified offer shows accurate gross price gap, discloses membership fees',()=>{
-  const c={instantspeak:{monthly:{active:true,currency:'BRL',public_price_minor:3190,member_price_minor:2390,membership_fee_minor:990,
+  const c={language_app:{monthly:{active:true,currency:'BRL',public_price_minor:3190,member_price_minor:2390,membership_fee_minor:990,
    membership_period:'monthly',terms_url:'https://example.org/terms',benefits:['Conversation lessons']}}};
-  const v=valueOffer('instantspeak','monthly',c);
+  const v=valueOffer('language_app','monthly',c);
   assert.equal(v.gross_price_difference_minor,800);
   assert.equal(v.price_difference_is_not_net_savings,true);
   assert.equal(v.membership_fee_minor,990);assert.equal(v.expires_at,null);assert.equal(v.urgency_label,'');
@@ -2590,16 +2590,16 @@ function register_v07_tests(){
  test('V07 no unverifiable offer expiration or fake countdown',()=>{
   const now=new Date('2026-10-17T12:00:00Z');
   const o={active:true,currency:'BRL',public_price_minor:1000,member_price_minor:800,terms_url:'https://example.org/terms',expires_at:'2026-10-16T00:00:00Z'};
-  assert.equal(valueOffer('instantspeak','x',{instantspeak:{x:o}},now),null);
+  assert.equal(valueOffer('language_app','x',{language_app:{x:o}},now),null);
   o.expires_at='2026-11-30T00:00:00Z';
-  assert.equal(valueOffer('instantspeak','x',{instantspeak:{x:o}},now).expires_at,o.expires_at);
+  assert.equal(valueOffer('language_app','x',{language_app:{x:o}},now).expires_at,o.expires_at);
  });
  test('V07 unverified catalog values rejected; unknown SKU not available',()=>{
   const a={active:true,currency:'BRL',public_price_minor:1000,member_price_minor:2000,terms_url:'https://example.org'};
-  assert.throws(()=>valueOffer('instantspeak','x',{instantspeak:{x:a}}));
-  assert.equal(valueOffer('instantspeak','missing',{}),null);
-  assert.throws(()=>valueOffer('instantspeak','/admin',{}));
-  assert.throws(()=>valueOffer('instantspeak','x',{instantspeak:{x:{...a,member_price_minor:500,terms_url:'http://bad.com'}}}));
+  assert.throws(()=>valueOffer('language_app','x',{language_app:{x:a}}));
+  assert.equal(valueOffer('language_app','missing',{}),null);
+  assert.throws(()=>valueOffer('language_app','/admin',{}));
+  assert.throws(()=>valueOffer('language_app','x',{language_app:{x:{...a,member_price_minor:500,terms_url:'http://bad.com'}}}));
  });
  test('V07 no public store review gating based on survey score in SQL or routes',()=>{
   const claimSQL=SCHEMA_SQL.slice(SCHEMA_SQL.indexOf('CREATE OR REPLACE FUNCTION r3_claim_review_prompt'),SCHEMA_SQL.indexOf('-- Transactional event insertion'));
@@ -2613,9 +2613,9 @@ function register_v07_tests(){
   assert.equal(r.statusCode,401);
  });
  test('V07 native review endpoint calls store-API eligibility only, not storefront redirect',async()=>{
-  const old=process.env.R3_APP_KEYS_JSON;process.env.R3_APP_KEYS_JSON=JSON.stringify({instantspeak:'K'.repeat(48)});
+  const old=process.env.R3_APP_KEYS_JSON;process.env.R3_APP_KEYS_JSON=JSON.stringify({language_app:'K'.repeat(48)});
   const mk=()=>{const r=new EventEmitter();r.setHeader=()=>{};r.end=x=>r.body=JSON.parse(x);return r;};
-  const headers={'x-r3-app':'instantspeak',authorization:'Bearer '+'K'.repeat(48),'content-type':'application/json'};
+  const headers={'x-r3-app':'language_app',authorization:'Bearer '+'K'.repeat(48),'content-type':'application/json'};
   try{
    const r=mk();await reviewPrompt({method:'POST',headers,body:JSON.stringify({user_id:'u',platform:'ios',session_completed:true,in_foreground:true,task_idle:true})},r,{claimPrompt:async()=>true});
    assert.equal(r.body.eligible,true);assert.equal(r.body.action,'request_native_review');
@@ -2623,9 +2623,9 @@ function register_v07_tests(){
   }finally{if(old===undefined)delete process.env.R3_APP_KEYS_JSON;else process.env.R3_APP_KEYS_JSON=old;}
  });
  test('V07 feedback API preserves all scores including zero, duplicate accepted idempotently',async()=>{
-  const old=process.env.R3_APP_KEYS_JSON;process.env.R3_APP_KEYS_JSON=JSON.stringify({instantspeak:'K'.repeat(48)});
+  const old=process.env.R3_APP_KEYS_JSON;process.env.R3_APP_KEYS_JSON=JSON.stringify({language_app:'K'.repeat(48)});
   const mk=()=>{const r=new EventEmitter();r.setHeader=()=>{};r.end=x=>r.body=JSON.parse(x);return r;};
-  const headers={'x-r3-app':'instantspeak',authorization:'Bearer '+'K'.repeat(48),'content-type':'application/json'};
+  const headers={'x-r3-app':'language_app',authorization:'Bearer '+'K'.repeat(48),'content-type':'application/json'};
   try{let seen;const payload={feedback_id:randomUUID(),user_id:'u',score:0};let r=mk();await feedback({method:'POST',headers,body:JSON.stringify(payload)},r,{saveFeedback:async(app,b)=>{seen=b;return 'inserted';}});
    assert.equal(r.statusCode,201);assert.equal(seen.score,0);
    r=mk();await feedback({method:'POST',headers,body:JSON.stringify(payload)},r,{saveFeedback:async()=> 'duplicate'});
@@ -2633,9 +2633,9 @@ function register_v07_tests(){
   }finally{if(old===undefined)delete process.env.R3_APP_KEYS_JSON;else process.env.R3_APP_KEYS_JSON=old;}
  });
  test('V07 journey endpoint needs server key and returns accurate actual progress',async()=>{
-  const old=process.env.R3_APP_KEYS_JSON;process.env.R3_APP_KEYS_JSON=JSON.stringify({instantspeak:'K'.repeat(48)});
+  const old=process.env.R3_APP_KEYS_JSON;process.env.R3_APP_KEYS_JSON=JSON.stringify({language_app:'K'.repeat(48)});
   const mk=()=>{const r=new EventEmitter();r.setHeader=()=>{};r.end=x=>r.body=JSON.parse(x);return r;};
-  const headers={'x-r3-app':'instantspeak',authorization:'Bearer '+'K'.repeat(48)};
+  const headers={'x-r3-app':'language_app',authorization:'Bearer '+'K'.repeat(48)};
   try{let r=mk();await journey({method:'GET',headers,url:'/api/journey?user_id=opaque'},r,{getProgress:async()=>({daily_goal:{completed:1,target:1,met:true},quests:{weekly_days:1},xp_total:10})});
   assert.equal(r.statusCode,200);assert.equal(r.body.estimate,null);
   r=mk();await journey({method:'GET',headers:{},url:'/api/journey?user_id=opaque'},r);assert.equal(r.statusCode,401);

@@ -5,7 +5,7 @@
 | Check run | Observed result | Limitations |
 |---|---|---|
 | `npm test` — modern Node | **333/333 PASS** | Pure / simulated backend and contract tests |
-| `npm test` — InstantStudy integration | **4/4 PASS** | Stubbed integration path |
+| `npm test` — study app integration | **4/4 PASS** | Stubbed integration path |
 | `npm test` — legacy R3ENGINE | **137/137 PASS** | Local compatibility suite |
 | `npm run test:stats` | **9/9 PASS** | Offline synthetic / statistical tests |
 | `npm run db:verify-install` | **16/16 files, PASS** | SQL static contract and order; no DB migrations applied |
@@ -16,7 +16,7 @@
 | `npm run worker:purge` | **disabled** (0 deleted) | Safe default |
 | `npm run test:identity` | **9/9 PASS** | Includes branding, calendar-gap and purge guard tests |
 | `npm run check:manifest` | **PASS** | SHA-256 of all release source files |
-| `node -e "import('@riverthree/instantengine')"` | **PASS** | New package self-resolution works locally |
+| `node -e "import('instantengine')"` | **PASS** | New package self-resolution works locally |
 
 **474 distinct Node test results in the principal `npm test` script** (333 + 4 + 137), plus 9 Python tests. Targeted `test:identity`, `test:churn`, `test:integrations` are subsets of the modern suite and not added again.
 

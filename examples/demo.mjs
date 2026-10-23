@@ -5,15 +5,15 @@ import {createMemoryRepository} from '../src/storage/memory.mjs';
 const db=createMemoryRepository();
 const engine=createTMNT({repository:db});
 const apps=[
-  {app:'dotsvest',event:'lesson_completed',cadence:'daily'},
-  {app:'instantspeak',event:'conversation_completed',cadence:'daily'},
-  {app:'instantcloser',event:'deal_closed',cadence:'weekly'},
+  {app:'finance_app',event:'lesson_completed',cadence:'daily'},
+  {app:'language_app',event:'conversation_completed',cadence:'daily'},
+  {app:'sales_app',event:'deal_closed',cadence:'weekly'},
   {app:'bible',event:'reading_completed',cadence:'daily'},
   {app:'marketplace',event:'purchase_completed',cadence:'episodic'}
 ];
 const results=[];
 for(const item of apps){
-  const scope={tenant:'instant',app:item.app,environment:'test'};
+  const scope={tenant:'demo',app:item.app,environment:'test'};
   await engine.registerApp({...scope,keyHash:'c'.repeat(64),cadence:item.cadence,modules:{notifications:item.cadence!=='episodic'},events:[{name:item.event,value:true}]});
   await engine.track({...scope,subject:'demo_user',eventId:randomUUID(),event:item.event,locale:'pt-BR',timezone:'America/Sao_Paulo'});
   await engine.setConsent({...scope,subject:'demo_user',channel:'push',purpose:'reminder',granted:true,verified:true,platform:'android'});

@@ -4,7 +4,7 @@
 
 ## Execuções
 
-- `npm test`: **391/391** aprovados (**250** SDK moderno, **4** adaptador InstantStudy, **137** legados).
+- `npm test`: **391/391** aprovados (**250** SDK moderno, **4** adaptador do app de estudos, **137** legados).
 - Novas regressões v2.7: **19** (15 decisões/contexto + 3 SQL contract + 1 gateway HMAC).
 - `npm run smoke`: **21/21** verificações HTTP legadas, com aviso explícito de `DATABASE_URL` ausente.
 - `npm run check`: aprovado.

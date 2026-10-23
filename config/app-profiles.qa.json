@@ -3,7 +3,7 @@
   "profiles": [
     {
       "tenant": "tmntqa",
-      "app": "instantstudy",
+      "app": "study_app",
       "environment": "test",
       "cadence": "daily",
       "modules": {
@@ -29,7 +29,7 @@
     },
     {
       "tenant": "tmntqa",
-      "app": "instantvest",
+      "app": "invest_app",
       "environment": "test",
       "cadence": "daily",
       "modules": {
@@ -55,7 +55,7 @@
     },
     {
       "tenant": "tmntqa",
-      "app": "instantspeak2",
+      "app": "language_app2",
       "environment": "test",
       "cadence": "daily",
       "modules": {
@@ -81,7 +81,7 @@
     },
     {
       "tenant": "tmntqa",
-      "app": "instantbible",
+      "app": "reading_app",
       "environment": "test",
       "cadence": "none",
       "modules": {
@@ -101,7 +101,7 @@
     },
     {
       "tenant": "tmntqa",
-      "app": "instantcloser",
+      "app": "sales_app",
       "environment": "test",
       "cadence": "weekly",
       "modules": {
@@ -126,7 +126,7 @@
     },
     {
       "tenant": "tmntqa",
-      "app": "agesoma",
+      "app": "wellness_app",
       "environment": "test",
       "cadence": "episodic",
       "modules": {

@@ -3,17 +3,17 @@
 ## Scope
 
 - **Product:** INSTANTENGINE (formerly RIVERENGINE / TMNT Engine).
-- **Private Node package ID:** `@riverthree/instantengine` (not published). Existing integrations using the **old package name** `@riverthree/riverengine` must explicitly migrate the installation/import; merely updating the directory will not preserve the old package specifier. The old distribution remains available separately in its archived artifact.
+- **Private Node package ID:** `instantengine` (not published). Existing integrations using the **old package name** `riverengine` must explicitly migrate the installation/import; merely updating the directory will not preserve the old package specifier. The old distribution remains available separately in its archived artifact.
 - **API aliases:** new `createInstantEngine`, `createInstantEngineGateway`, `makeSignedInstantEngineRequest`, `createInstantEngagementAdapter`, and `createInstantChurnNeonRepository`. Legacy `createRiverEngine`, `createTMNT`, `createRiverEngineGateway`, `createTMNTGateway`, and old request builders remain exact function aliases.
 - **Wire compatibility:** keep `POST /tmnt/v1/action`, `x-tmnt-*` headers and original HMAC signing protocol. No automatic API endpoint migration.
 - **Data compatibility:** retain all `r3_v1_*`, `river_v1_*` tables, migrations `0000`–`0015`, and existing schema, env secrets, signer credential scopes. No destructive SQL or migration required for this rename.
-- **No mobile/app integration changed.** In particular, InstantSpeak maintains its separately chosen FreeLingo pedagogical engine; INSTANTENGINE is not silently installed there.
+- **No mobile/app integration changed.** In particular, the language app keeps its separately chosen pedagogical engine; INSTANTENGINE is not silently installed there.
 
 ## Usage
 
 ```js
-import {createInstantEngine} from '@riverthree/instantengine';
-import {createInstantEngineGateway, makeSignedInstantEngineRequest} from '@riverthree/instantengine/gateway';
+import {createInstantEngine} from 'instantengine';
+import {createInstantEngineGateway, makeSignedInstantEngineRequest} from 'instantengine/gateway';
 const engine = createInstantEngine({repository}); // trusted backend only
 const gateway = createInstantEngineGateway({engine,nonceStore,credentials});
 ```
@@ -35,7 +35,7 @@ npm run worker:purge
 
 # staging / QA, after verified backups and permission review:
 INSTANT_PURGE_ENABLED=true \
-INSTANT_CHURN_SCOPE=riverthree/instantstudy/staging \
+INSTANT_CHURN_SCOPE=demo/study_app/staging \
 DATABASE_URL='postgresql://REDACTED' npm run worker:purge
 ```
 

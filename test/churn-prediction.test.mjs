@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {scoreChurnRisk,createChurnDailyJob,createRiverEngagementAdapter,normalizeEngagement,planConsentSafeRetention} from '../src/churn-prediction.mjs';
-const scope={tenant:'riverthree',app:'instantspeak',environment:'test'};
+const scope={tenant:'demo',app:'language_app',environment:'test'};
 const now=new Date('2026-10-21T12:00:00Z');
 const uuid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const strong={daysSinceOpen:0,activeDays7:7,activeDaysPrev7:6,completed7:9,failed7:0,crashes7:0,opens7:12};

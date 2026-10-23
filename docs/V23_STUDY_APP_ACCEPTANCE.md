@@ -1,14 +1,14 @@
-# TMNT 2.3 QA acceptance: executable InstantStudy bridge
+# TMNT 2.3 QA acceptance: executable study app bridge
 
 ## Validated
 
-- [x] Six repository contracts prepared in draft PRs, with executable hook for InstantStudy PR #61.
+- [x] Six repository contracts prepared in draft PRs, with an executable hook for the study app.
 - [x] Authenticated first-party identity HMAC binds learner ID, session ID, timezone, locale, and short expiry.
 - [x] Backend-persisted completed study session with >=1 attempt only; raw client progress cannot trigger the event.
 - [x] Server-only TMNT signature; pseudonymized learner; deterministic idempotent event UUID.
 - [x] HTTP integration, duplicate, spoofing, locale/timezone tampering and gateway outage tests.
 - [x] QA Neon clean bootstrap/migrations from v2.2; `study_session_completed` accepted once, duplicate refused, 10 XP earned.
-- [x] InstantStudy GitHub CI validate/flutter/dependency-check passed at tested QA commit.
+- [x] Study app CI validate/flutter/dependency-check passed at tested QA commit.
 
 ## Not validated for production
 

@@ -16,7 +16,7 @@
 | Python trainer offline regression | PASS | 9 tests |
 | Legacy HTTP smoke + migration chain | PASS | 21/21 smoke and 16 migration-file contract check |
 | Live SQL insert, opt-out race, daily SQL job and live model | NOT VERIFIED | Requires authenticated backend + consented QA events |
-| App integrations (InstantSpeak/Study/Body/Bible etc.) | NOT VERIFIED | Each app requires a trusted event adapter |
+| App integrations (language, study, fitness, reading apps etc.) | NOT VERIFIED | Each app requires a trusted event adapter |
 | Production load/security/IAM/backup/retention cleanup | NOT VERIFIED | Requires operations review |
 | Proven D1/D7/D30 lift and ROI | NOT VERIFIED | Requires fully matured randomized controlled test |
 

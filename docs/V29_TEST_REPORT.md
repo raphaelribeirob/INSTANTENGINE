@@ -5,7 +5,7 @@ Data: 2026-10-21. Fonte-base: RIVERENGINE 2.8, alterada somente nesta cópia de 
 ## Resultados
 
 - **303/303** testes Node modernos (incluindo o Grokbot Observer API, client HTTP, app instrumentation, SQL contracts e outbox), 0 falhas.
-- **4/4** testes do adaptador InstantStudy anterior, 0 falhas.
+- **4/4** testes do adaptador do app de estudos anterior, 0 falhas.
 - **137/137** testes legados R3ENGINE, 0 falhas.
 - **7/7** testes Python Statsmodels/bandit offline, 0 falhas.
 - **Total 451/451** em suites automatizadas. **21/21** verificações smoke HTTP legadas, sem banco real e sem push.

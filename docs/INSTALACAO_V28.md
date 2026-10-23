@@ -19,7 +19,7 @@
 ### Exemplo de integração Node
 
 ```js
-import {createRiverGraphileQueue,createRiverPostHogHTTPDelivery} from '@riverthree/riverengine/graphile-worker';
+import {createRiverGraphileQueue,createRiverPostHogHTTPDelivery} from 'instantengine/graphile-worker';
 // Todas as funções a seguir rodam exclusivamente em backend autenticado.
 const queue=createRiverGraphileQueue({
   enabled: process.env.RIVER_GRAPHILE_ENABLED==='true',

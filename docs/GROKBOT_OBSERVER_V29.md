@@ -11,13 +11,13 @@
 ## Exemplo do backend Node
 
 ```js
-import {createRiverObserverNeonRepository} from '@riverthree/riverengine/observer-neon';
-import {createNeonRepository} from '@riverthree/riverengine/neon';
-import {createGrokbotObserver} from '@riverthree/riverengine/grokbot-observer';
+import {createRiverObserverNeonRepository} from 'instantengine/observer-neon';
+import {createNeonRepository} from 'instantengine/neon';
+import {createGrokbotObserver} from 'instantengine/grokbot-observer';
 const observer=createGrokbotObserver({
  repository:await createRiverObserverNeonRepository(process.env.DATABASE_URL),
  nonceStore:await createNeonRepository(process.env.DATABASE_URL),
- credentials:{'riverthree/instantstudy/test':{
+ credentials:{'demo/study_app/test':{
   secret:process.env.RIVER_OBSERVER_SIGNING_SECRET,
   operations:['catalog','overview','retention','experiment','diagnose','pipeline'],
   experiments:['daily_goals_v1'],

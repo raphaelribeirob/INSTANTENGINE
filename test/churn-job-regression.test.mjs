@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createChurnDailyJob} from '../src/churn-prediction.mjs';
 
-const scope={tenant:'riverthree',app:'instantspeak',environment:'test'};
+const scope={tenant:'demo',app:'language_app',environment:'test'};
 const features={daysSinceOpen:1,activeDays7:2,activeDaysPrev7:2,completed7:1,failed7:0,crashes7:0,opens7:2};
 const row=subject=>({subject,features});
 function fixture({clock='2026-10-22T12:00:00Z',batches=[[]],enabled=true}={}){

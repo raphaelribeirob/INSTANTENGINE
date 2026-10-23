@@ -21,8 +21,8 @@ test('6 app profiles conform to server SDK contract and tenant boundaries',async
 test('profiles do not default to forced streaks for episodic or non-learning apps',()=>{
  const profiles=registry.profiles;
  for(const x of profiles){assert.equal(x.environment,'test');assert.equal(x.tenant,'tmntqa');}
- for(const app of ['instantbible','instantcloser','agesoma']){
+ for(const app of ['reading_app','sales_app','wellness_app']){
   const x=profiles.find(p=>p.app===app);assert.ok(x);assert.notEqual(x.modules.habits,true);
  }
- assert.equal(profiles.find(p=>p.app==='agesoma').cadence,'episodic');
+ assert.equal(profiles.find(p=>p.app==='wellness_app').cadence,'episodic');
 });

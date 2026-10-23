@@ -1,5 +1,5 @@
 /**
- * InstantStudy -> central TMNT Engine bridge (trusted server only).
+ * Study app -> central TMNT Engine bridge (trusted server only).
  * No browser tokens, no shared TMNT engine code duplicated here.
  * By default disabled. Activation requires dedicated trusted identity proof.
  */
@@ -26,7 +26,7 @@ function header(headers, key) {
 }
 export function signVerifiedLearner({ learnerId, sessionId, timestamp, secret, locale, timezone }) {
     return 'sha256=' + createHmac('sha256', secret)
-        .update(['instantstudy/tmnt-identity/v1', learnerId, sessionId, String(timestamp), locale, timezone].join('\n'))
+        .update(['study-app/tmnt-identity/v1', learnerId, sessionId, String(timestamp), locale, timezone].join('\n'))
         .digest('hex');
 }
 export function createTMNTStudyBridge(config = {}) {
@@ -51,11 +51,11 @@ export function createTMNTStudyBridge(config = {}) {
             const learnerId = session.learnerId;
             if (!learnerId || !LEARNER.test(learnerId))
                 return 'identity_required';
-            const claimedLearner = header(headers, 'x-instantstudy-learner');
-            const stamp = header(headers, 'x-instantstudy-identity-ts');
-            const proof = header(headers, 'x-instantstudy-identity-proof');
-            const locale = header(headers, 'x-instantstudy-locale');
-            const timezone = header(headers, 'x-instantstudy-timezone');
+            const claimedLearner = header(headers, 'x-study-app-learner');
+            const stamp = header(headers, 'x-study-app-identity-ts');
+            const proof = header(headers, 'x-study-app-identity-proof');
+            const locale = header(headers, 'x-study-app-locale');
+            const timezone = header(headers, 'x-study-app-timezone');
             let timezoneValid = false;
             try {
                 new Intl.DateTimeFormat('en', { timeZone: timezone });

@@ -5,14 +5,14 @@ import {createTMNTStudyBridge, signVerifiedLearner} from './tmntBridge.js';
 const signingSecret='signer-'+randomUUID()+randomUUID();
 const identitySecret='identity-'+randomUUID()+randomUUID();
 const pseudonymSecret='pseudonym-'+randomUUID()+randomUUID();
-const scope='qa/instantstudy/test';
+const scope='qa/study_app/test';
 function setup(fetchImpl:typeof fetch){return createTMNTStudyBridge({enabled:true,
  endpoint:'http://127.0.0.1:6060',scope,signingSecret,identitySecret,pseudonymSecret,fetchImpl});}
 function claims(sessionId:string,learnerId='learner_01'){
  const timestamp=Date.now(),locale='pt-BR',timezone='America/Sao_Paulo';
- return {'x-instantstudy-learner':learnerId,'x-instantstudy-identity-ts':String(timestamp),
-  'x-instantstudy-locale':locale,'x-instantstudy-timezone':timezone,
-  'x-instantstudy-identity-proof':signVerifiedLearner({learnerId,sessionId,timestamp,secret:identitySecret,locale,timezone})};
+ return {'x-study-app-learner':learnerId,'x-study-app-identity-ts':String(timestamp),
+  'x-study-app-locale':locale,'x-study-app-timezone':timezone,
+  'x-study-app-identity-proof':signVerifiedLearner({learnerId,sessionId,timestamp,secret:identitySecret,locale,timezone})};
 }
 test('disabled when feature flag is absent',async()=>{
  assert.equal(await createTMNTStudyBridge().emitCompleted({session:{sessionId:randomUUID(),completed:true,attempts:1},headers:{}}),'disabled');
@@ -30,7 +30,7 @@ test('backend completion with signed actor sends scoped signed request',async()=
 test('forged identity and a session with zero attempts do not emit',async()=>{
  let requests=0;const bridge=setup(async()=>{requests++;return new Response('{"result":true}',{status:200});});
  const session={sessionId:randomUUID(),learnerId:'learner_01',completed:true,attempts:1};
- assert.equal(await bridge.emitCompleted({session,headers:{...claims(session.sessionId),'x-instantstudy-learner':'spoofed'}}),'identity_required');
+ assert.equal(await bridge.emitCompleted({session,headers:{...claims(session.sessionId),'x-study-app-learner':'spoofed'}}),'identity_required');
  assert.equal(await bridge.emitCompleted({session:{...session,attempts:0},headers:claims(session.sessionId)}),'not_completed');
  assert.equal(requests,0);
 });

@@ -14,8 +14,8 @@
 ## Backend example
 
 ```js
-import { createRiverEngine, createRiverABExperiments, createPostHogNodeClient } from '@riverthree/riverengine';
-import { createNeonRepository } from '@riverthree/riverengine/neon';
+import { createRiverEngine, createRiverABExperiments, createPostHogNodeClient } from 'instantengine';
+import { createNeonRepository } from 'instantengine/neon';
 const repository = await createNeonRepository(process.env.DATABASE_URL);
 const posthogClient = await createPostHogNodeClient({
   projectKey: process.env.RIVERENGINE_POSTHOG_PROJECT_KEY,
@@ -28,13 +28,13 @@ const ab = createRiverABExperiments({repository,posthogClient,
   allowProduction:process.env.RIVERENGINE_AB_ALLOW_PROD==='true',
 });
 // Authenticated backend AFTER explicit verified analytics opt-in:
-await ab.setAnalyticsConsent({tenant:'river',app:'instantstudy',environment:'test',subject:verifiedOpaqueSubject,granted:true,verified:true});
+await ab.setAnalyticsConsent({tenant:'river',app:'study_app',environment:'test',subject:verifiedOpaqueSubject,granted:true,verified:true});
 // Evaluate only at the feature surface just before delivering the experience:
-const decision = await ab.expose({tenant:'river',app:'instantstudy',environment:'test',subject:verifiedOpaqueSubject,
+const decision = await ab.expose({tenant:'river',app:'study_app',environment:'test',subject:verifiedOpaqueSubject,
  flagKey:'daily-goal-copy',variants:['control','test'],analyticsConsent:true});
 // Use decision.variant ONLY if decision.status==='assigned'; otherwise keep control and do not count an exposure.
 // Later, after the backend successfully records a legitimate value event with sdk.track():
-const result = await ab.conversion({tenant:'river',app:'instantstudy',environment:'test',subject:verifiedOpaqueSubject,
+const result = await ab.conversion({tenant:'river',app:'study_app',environment:'test',subject:verifiedOpaqueSubject,
  flagKey:'daily-goal-copy',variants:['control','test'],eventId:verifiedEventUUID,
  conversionEvent:'study_session_completed',analyticsConsent:true});
 // On shutdown: await posthogClient.shutdown(). Capture only queues an event; not proof of ingestion.
@@ -70,8 +70,8 @@ Sources: https://posthog.com/docs/experiments/creating-an-experiment ; https://p
 
 See [`config/posthog-ab-drafts.json`](../config/posthog-ab-drafts.json):
 
-- **InstantStudy:** daily goal guidance → verified `study_session_completed` conversions, D1/D7/D30 guardrails.
-- **InstantSpeak:** reminder copy → verified `conversation_completed`, requires separate push permission and does not enable push automatically.
+- **Study app:** daily goal guidance → verified `study_session_completed` conversions, D1/D7/D30 guardrails.
+- **Language app:** reminder copy → verified `conversation_completed`, requires separate push permission and does not enable push automatically.
 - **DOTSVEST:** optional revision mission → verified `practice_completed` and D1/D7 metrics.
 
 These are local QA templates only. They are not remote PostHog experiments and have no assigned participants or measured lift.

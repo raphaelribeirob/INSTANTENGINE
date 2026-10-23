@@ -1,0 +1,152 @@
+{
+  "status": "illustrative QA ONLY — not active in actual apps",
+  "profiles": [
+    {
+      "tenant": "tmntqa",
+      "app": "instantstudy",
+      "environment": "test",
+      "cadence": "daily",
+      "modules": {
+        "habits": true,
+        "missions": true,
+        "notifications": true,
+        "analytics": true
+      },
+      "quietStart": 8,
+      "quietEnd": 21,
+      "weeklyLimit": 3,
+      "holdoutPercent": 10,
+      "events": [
+        {
+          "name": "review_completed",
+          "value": true
+        },
+        {
+          "name": "study_session_completed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "tenant": "tmntqa",
+      "app": "instantvest",
+      "environment": "test",
+      "cadence": "daily",
+      "modules": {
+        "habits": true,
+        "missions": true,
+        "notifications": true,
+        "analytics": true
+      },
+      "quietStart": 8,
+      "quietEnd": 21,
+      "weeklyLimit": 3,
+      "holdoutPercent": 10,
+      "events": [
+        {
+          "name": "lesson_completed",
+          "value": true
+        },
+        {
+          "name": "practice_completed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "tenant": "tmntqa",
+      "app": "instantspeak2",
+      "environment": "test",
+      "cadence": "daily",
+      "modules": {
+        "habits": true,
+        "missions": true,
+        "notifications": true,
+        "analytics": true
+      },
+      "quietStart": 8,
+      "quietEnd": 21,
+      "weeklyLimit": 3,
+      "holdoutPercent": 10,
+      "events": [
+        {
+          "name": "conversation_completed",
+          "value": true
+        },
+        {
+          "name": "lesson_completed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "tenant": "tmntqa",
+      "app": "instantbible",
+      "environment": "test",
+      "cadence": "none",
+      "modules": {
+        "analytics": true,
+        "feedback": true
+      },
+      "quietStart": 8,
+      "quietEnd": 21,
+      "weeklyLimit": 3,
+      "holdoutPercent": 10,
+      "events": [
+        {
+          "name": "reading_completed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "tenant": "tmntqa",
+      "app": "instantcloser",
+      "environment": "test",
+      "cadence": "weekly",
+      "modules": {
+        "notifications": true,
+        "analytics": true,
+        "feedback": true
+      },
+      "quietStart": 8,
+      "quietEnd": 21,
+      "weeklyLimit": 3,
+      "holdoutPercent": 10,
+      "events": [
+        {
+          "name": "followup_completed",
+          "value": true
+        },
+        {
+          "name": "deal_closed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "tenant": "tmntqa",
+      "app": "agesoma",
+      "environment": "test",
+      "cadence": "episodic",
+      "modules": {
+        "analytics": true,
+        "feedback": true
+      },
+      "quietStart": 8,
+      "quietEnd": 21,
+      "weeklyLimit": 3,
+      "holdoutPercent": 10,
+      "events": [
+        {
+          "name": "task_completed",
+          "value": true
+        },
+        {
+          "name": "workflow_finished",
+          "value": true
+        }
+      ]
+    }
+  ]
+}

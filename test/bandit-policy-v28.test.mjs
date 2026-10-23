@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {signRiverBanditPolicy,applyRiverBanditPolicy} from '../src/integrations/bandit-policy.mjs';
+const secret='p'.repeat(48),scope={tenant:'river',app:'study',environment:'test'};
+const policy={schema:1,model:'mabwiser',...scope,arms:['new_lesson','no_send'],sampleCount:300,createdAt:'2026-10-19T00:00:00Z',expiresAt:'2026-10-26T00:00:00Z',decisions:{new_morning:'new_lesson',streak_evening:'no_send'}};
+const baseline={action:'send',templateId:'old_lesson',reason:'safe_and_eligible'};
+const args={baseline,policy,signature:signRiverBanditPolicy(policy,secret),secret,scope,segment:'new_morning',approvedTemplates:['new_lesson','old_lesson'],enabled:true,now:new Date('2026-10-21T15:00:00Z')};
+test('operator-signed offline model only changes whitelisted template',()=>{assert.equal(applyRiverBanditPolicy(args).templateId,'new_lesson')});
+test('model never overrides base safety deny',()=>{const result=applyRiverBanditPolicy({...args,baseline:{action:'do_not_send',reason:'consent_revoked'}});assert.equal(result.reason,'consent_revoked')});
+test('no-send arm can suppress eligible candidate',()=>{const result=applyRiverBanditPolicy({...args,segment:'streak_evening'});assert.equal(result.action,'do_not_send');assert.equal(result.reason,'bandit_recommends_rest')});
+test('tampered policy signature fails closed',()=>{const tampered={...policy,decisions:{new_morning:'no_send'}};assert.deepEqual(applyRiverBanditPolicy({...args,policy:tampered}),baseline)});
+test('unapproved template or wrong scope fails closed',()=>{assert.deepEqual(applyRiverBanditPolicy({...args,approvedTemplates:['old_lesson']}),baseline);assert.deepEqual(applyRiverBanditPolicy({...args,scope:{...scope,tenant:'other'}}),baseline)});
+test('expired signature or disabled feature fails closed',()=>{assert.deepEqual(applyRiverBanditPolicy({...args,now:new Date('2026-11-01')}),baseline);assert.deepEqual(applyRiverBanditPolicy({...args,enabled:false}),baseline)});
+test('prod needs explicit approval',()=>{const prod={...policy,environment:'prod'},s={...scope,environment:'prod'};assert.deepEqual(applyRiverBanditPolicy({...args,policy:prod,scope:s,signature:signRiverBanditPolicy(prod,secret)}),baseline)});
+test('unsigned/invalid model refuses activation',()=>{assert.throws(()=>signRiverBanditPolicy({...policy,sampleCount:2},secret),/Invalid bandit/)});

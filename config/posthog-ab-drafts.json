@@ -1,0 +1,40 @@
+{
+  "version": "2.6.0",
+  "status": "draft_only_not_created_in_posthog",
+  "enabled": false,
+  "experiments": [
+    {
+      "app": "instantstudy",
+      "flagKey": "study-goal-guidance-v1",
+      "hypothesis": "Uma explicacao clara da meta diaria aumenta sessoes de estudo concluidas sem elevar friccao",
+      "variants": ["control", "test"],
+      "primaryEvent": "riverengine_ab_conversion",
+      "conversionEvent": "study_session_completed",
+      "secondaryMetrics": ["retention_d1", "retention_d7", "retention_d30"],
+      "guardrails": ["opt_out_rate", "crash_rate"],
+      "activation": "manual_posthog_draft_and_backend_QA_only"
+    },
+    {
+      "app": "instantspeak",
+      "flagKey": "speak-practice-reminder-v1",
+      "hypothesis": "Lembretes adaptados aumentam conversas realmente concluidas; envio exige consentimento push independente",
+      "variants": ["control", "test"],
+      "primaryEvent": "riverengine_ab_conversion",
+      "conversionEvent": "conversation_completed",
+      "secondaryMetrics": ["retention_d7", "retention_d30"],
+      "guardrails": ["notification_opt_out", "complaint_rate"],
+      "activation": "manual_posthog_draft_and_backend_QA_only"
+    },
+    {
+      "app": "dotsvest",
+      "flagKey": "vest-daily-mission-v1",
+      "hypothesis": "Uma missao de revisao opcional melhora progresso verificavel sem incentivar cliques vazios",
+      "variants": ["control", "test"],
+      "primaryEvent": "riverengine_ab_conversion",
+      "conversionEvent": "practice_completed",
+      "secondaryMetrics": ["retention_d1", "retention_d7"],
+      "guardrails": ["exercise_error_rate", "user_complaints"],
+      "activation": "manual_posthog_draft_and_backend_QA_only"
+    }
+  ]
+}

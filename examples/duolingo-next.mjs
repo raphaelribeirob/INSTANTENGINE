@@ -1,0 +1,24 @@
+/** End-to-end memory-only demonstration; no real push, payments, users or causal claim. */
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {createTMNT} from '../src/index.mjs';
+import {createMemoryRepository} from '../src/storage/memory.mjs';
+let clock=new Date('2026-10-20T12:00:00Z');const now=()=>clock;
+const repository=createMemoryRepository({now});const sdk=createTMNT({repository,now});
+const scope={tenant:'tmntdemo',app:'study',environment:'test'};
+await sdk.registerApp({...scope,keyHash:'1'.repeat(64),modules:{habits:true,notifications:true,social:true,friendStreaks:true,missions:true,leagues:true},quietStart:8,quietEnd:21,events:[{name:'lesson_completed',value:true},{name:'app_opened',value:false}]});
+const record=async(subject,event='lesson_completed')=>sdk.track({...scope,subject,event,eventId:randomUUID(),occurredAt:clock,timezone:'UTC'});
+await record('alice');await record('bob');
+await sdk.defineDailyMission({...scope,missionKey:'complete_two',event:'lesson_completed',target:2,rewardXp:15});
+await sdk.inviteFriend({...scope,subject:'alice',friend:'bob'});await sdk.respondFriend({...scope,subject:'bob',friend:'alice',accept:true});
+await sdk.joinLeague({...scope,subject:'alice'});await sdk.joinLeague({...scope,subject:'bob'});
+clock=new Date('2026-10-20T12:00:01Z');await record('alice');await record('bob');await record('alice');
+assert.equal(await sdk.claimDailyMission({...scope,subject:'alice',missionKey:'complete_two'}),true);
+assert.equal(await sdk.claimDailyMission({...scope,subject:'alice',missionKey:'complete_two'}),false);
+const quest=(await sdk.dailyMissions({...scope,subject:'alice'}))[0];
+const friends=await sdk.friendStreak({...scope,subject:'alice',friend:'bob'});
+const league=await sdk.weeklyLeaderboard({...scope,subject:'alice'});
+assert.equal(quest.completed,true);assert.equal(friends.streak,1);assert.equal(league[0].isSelf,true);
+const stats=sdk.assessExperiment({arms:{treatment:{eligible:200,retained:140},holdout:{eligible:200,retained:80}}},{holdoutPercent:50});
+assert.equal(stats.causalClaim,false);
+console.log(JSON.stringify({status:'PASS',dailyMission:quest,friendStreak:friends,weeklyLeague:league,experimentSignal:stats.status,causalClaim:false,realPush:false,realUsers:false}));

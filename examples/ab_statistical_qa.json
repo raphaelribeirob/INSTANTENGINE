@@ -1,0 +1,4 @@
+[
+  {"experiment":"daily_goal_copy","window":"D7","randomized":true,"allocation":{"control":0.5,"test":0.5},"minPerArm":100,"arms":{"control":{"n":600,"successes":180},"test":{"n":600,"successes":210}}},
+  {"experiment":"streak_nudge","window":"D1","randomized":true,"allocation":{"control":0.5,"test":0.5},"minPerArm":100,"arms":{"control":{"n":600,"successes":180},"test":{"n":600,"successes":183}}}
+]

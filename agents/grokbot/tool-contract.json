@@ -1,0 +1,22 @@
+{
+  "name": "riverengine_retention_observer",
+  "version": "1.0.0",
+  "type": "read_only_backend_tool",
+  "execution": "node agents/grokbot/observer-client.mjs <operation> [allowlisted argument]",
+  "allowed_operations": [
+    "catalog",
+    "overview",
+    "retention",
+    "diagnose",
+    "experiment",
+    "pipeline"
+  ],
+  "scope": "from server environment only; never agent/user args",
+  "privacy": {
+    "minimum_cohort": 20,
+    "raw_subjects": false,
+    "cross_tenant_access": false
+  },
+  "side_effects": "none",
+  "enabled_by_default": false
+}

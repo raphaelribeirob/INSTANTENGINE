@@ -1,0 +1,39 @@
+name: INSTANTENGINE source QA
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install optional offline test dependencies
+        run: python -m pip install -r python/requirements-retention.txt
+      - name: Verify package manifest and syntax
+        run: |
+          npm run check:manifest
+          npm run check
+          npm run check:observer
+          npm run check:integrations
+          npm run check:churn
+      - name: Run complete unit and contract test suites
+        run: |
+          npm test
+          npm run test:stats
+          npm run db:verify-install
+          npm run smoke
+          npm run test:identity
+      - name: Verify independent churn and purge are OFF by default
+        run: |
+          npm run worker:churn
+          npm run worker:purge

@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createRiverChurnNeonRepository} from '../src/storage/churn-neon.mjs';
+const ddl=readFileSync(new URL('../migrations/0015_churn_engagement.sql',import.meta.url),'utf8');
+const source=readFileSync(new URL('../src/storage/churn-neon.mjs',import.meta.url),'utf8');
+test('migration has scoped FK, dedupe, strict enumerations, score constraints, no tracking networks',()=>{for(const x of ['river_v1_engagement_events','river_v1_churn_daily_scores','ON DELETE CASCADE','PRIMARY KEY(tenant_id,app_id,environment,event_id)','CHECK(kind=','CHECK((risk_index IS NULL) <> (probability_return IS NULL))'])assert.ok(ddl.includes(x),x);assert.ok(!/\b(wifi|ssid|bssid|geolocation|fingerprint)\b/i.test(ddl.replace(/^--.*$/gm,'')));});
+test('SQL source always gates by active analytics consent, tenant and current opt-in',()=>{for(const x of ["a.modules->>'analytics'='true'",'c.granted AND c.verified','e.occurred_at>c.updated_at','purgeExpired','tenant_id=${p.tenant}','app_id=${p.app}','environment=${p.environment}'])assert.ok(source.includes(x),x);});
+test('no direct messages, agent SQL or network operations in churn module',()=>{const s=readFileSync(new URL('../src/churn-prediction.mjs',import.meta.url),'utf8');assert.ok(!/fetch\(|OneSignal|sendNotification|sendMessage|wi-fi/i.test(s));});
+test('Neon adapter does not write before current consent',async()=>{let query='';const repo=await createRiverChurnNeonRepository(null,{sql:async(strings,...args)=>{query=String.raw({raw:strings.raw},...args);return [];}});const event='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';const r=await repo.recordEngagement({tenant:'riverthree',app:'instantspeak',environment:'test',subject:'u1',eventId:event,kind:'app_opened',source:'icon',occurredAt:new Date().toISOString()});assert.equal(r,false);assert.match(query,/c\.updated_at</);assert.match(query,/ON CONFLICT DO NOTHING/);});

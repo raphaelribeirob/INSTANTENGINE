@@ -1,0 +1,37 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {scoreChurnRisk,createChurnDailyJob,createRiverEngagementAdapter,normalizeEngagement,planConsentSafeRetention} from '../src/churn-prediction.mjs';
+const scope={tenant:'riverthree',app:'instantspeak',environment:'test'};
+const now=new Date('2026-10-21T12:00:00Z');
+const uuid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const strong={daysSinceOpen:0,activeDays7:7,activeDaysPrev7:6,completed7:9,failed7:0,crashes7:0,opens7:12};
+const weak={daysSinceOpen:6,activeDays7:0,activeDaysPrev7:4,completed7:0,failed7:4,crashes7:2,opens7:0};
+const validModel={schema:'river_churn_v1',status:'validated',approved:true,version:'verified-2026-q4',weights:[-1,2,0,1,-1,-1,1],intercept:0,validation:{testSize:200,returned:100,didNotReturn:100,auc:0.72,brier:0.18,baselineBrier:0.25,calibrationError:0.06}};
+test('uncalibrated index is NOT mislabeled as return probability',()=>{const r=scoreChurnRisk({features:weak});assert.equal(r.kind,'heuristic_risk_index');assert.equal(r.churnProbabilityTomorrow,null);assert.equal(r.returnProbabilityTomorrow,null);assert.equal(r.automaticSend,false);assert.equal(r.riskTier,'high');});
+test('verified progress and activity reduce heuristic churn risk',()=>{assert.ok(scoreChurnRisk({features:strong}).riskIndex<scoreChurnRisk({features:weak}).riskIndex);});
+test('invalid or impossible snapshots fail closed',()=>{assert.throws(()=>scoreChurnRisk({features:{...strong,activeDays7:12}}));assert.throws(()=>scoreChurnRisk({features:{...strong,failed7:-1}}));});
+test('validated model can emit probability only with calibration evidence',()=>{const s=scoreChurnRisk({features:strong,model:validModel});assert.equal(s.kind,'validated_probability');assert.ok(s.returnProbabilityTomorrow>0&&s.returnProbabilityTomorrow<1);assert.equal(s.automaticSend,false);});
+test('rejects model without holdout validation or calibration',()=>{assert.throws(()=>scoreChurnRisk({features:strong,model:{...validModel,approved:false}}));assert.throws(()=>scoreChurnRisk({features:strong,model:{...validModel,validation:{...validModel.validation,brier:0.30}}}));});
+test('event metadata enforces whitelist and 2-day recency',()=>{assert.equal(normalizeEngagement({eventId:uuid,kind:'app_opened',source:'widget',occurredAt:now,now}).source,'widget');assert.throws(()=>normalizeEngagement({eventId:uuid,kind:'app_opened',source:'wifi',occurredAt:now,now}));assert.throws(()=>normalizeEngagement({eventId:uuid,kind:'app_crashed',source:'push',occurredAt:now,now}));assert.throws(()=>normalizeEngagement({eventId:uuid,kind:'app_opened',occurredAt:'2026-10-01T00:00:00Z',now}));});
+test('adapter cannot accept unverified subject or user-supplied app source',async()=>{let calls=0;const adapter=createRiverEngagementAdapter({...scope,enabled:true,now:()=>now,repository:{recordEngagement:async()=>{calls++;return true;}},verifyEngagementEvent:async()=>({verified:false,subject:'attacker',eventId:uuid,kind:'app_opened',source:'push',occurredAt:now.toISOString()})});assert.equal((await adapter.record({eventId:uuid,kind:'app_opened',subject:'attacker',source:'push'})).status,'unverified');assert.equal(calls,0);});
+test('trusted app opens are accepted only from server callback',async()=>{let logged;const adapter=createRiverEngagementAdapter({...scope,enabled:true,now:()=>now,repository:{recordEngagement:async p=>{logged=p;return true;}},verifyEngagementEvent:async()=>({verified:true,subject:'server_verified',eventId:uuid,kind:'app_opened',source:'icon',occurredAt:now.toISOString()})});assert.equal((await adapter.record({eventId:uuid,kind:'app_opened',subject:'forged',source:'push'})).status,'recorded');assert.equal(logged.subject,'server_verified');assert.equal(logged.source,'icon');});
+test('production ingestion disabled without separate release approval',async()=>{let called=0;const adapter=createRiverEngagementAdapter({...scope,environment:'prod',enabled:true,repository:{recordEngagement:async()=>{called++;return true;}},verifyEngagementEvent:async()=>{called++;return null;}});assert.equal((await adapter.record({eventId:uuid,kind:'app_opened'})).status,'production_disabled');assert.equal(called,0);});
+test('job disabled by default, no writes',async()=>{let writes=0;const job=createChurnDailyJob({repository:{listChurnFeatures:async()=>[],upsertChurnScore:async()=>{writes++;}}});assert.equal((await job.run({...scope,asOf:'2026-10-21'})).status,'disabled');assert.equal(writes,0);});
+test('job makes idempotent, scoped daily updates, never sends notifications',async()=>{const recorded=[];let calls=0;const job=createChurnDailyJob({enabled:true,now:()=>now,repository:{listChurnFeatures:async p=>{calls++;assert.deepEqual({tenant:p.tenant,app:p.app,environment:p.environment},scope);return calls===1?[{subject:'u1',features:weak},{subject:'u2',features:strong}]:[];},upsertChurnScore:async p=>{recorded.push(p);return true;}}});const result=await job.run({...scope,asOf:'2026-10-21',pageSize:2});assert.equal(result.processed,2);assert.equal(result.notificationsSent,0);assert.deepEqual(recorded.map(x=>x.subject),['u1','u2']);assert.ok(recorded.every(x=>x.score.automaticSend===false));});
+test('job refuses production unless separately approved',async()=>{const job=createChurnDailyJob({enabled:true,now:()=>now,repository:{listChurnFeatures:async()=>{throw Error('must not read');},upsertChurnScore:async()=>{throw Error('must not write');}}});assert.equal((await job.run({...scope,environment:'prod',asOf:'2026-10-21'})).status,'production_disabled');});
+test('job rejects malicious or unordered cursor pages',async()=>{const job=createChurnDailyJob({enabled:true,now:()=>now,repository:{listChurnFeatures:async()=>[{subject:'u2',features:strong},{subject:'u1',features:weak}],upsertChurnScore:async()=>true}});await assert.rejects(job.run({...scope,asOf:'2026-10-21',pageSize:2}),/Unordered/);});
+
+test('permission reactivation is in-app, voluntary, delayed and never automatic',()=>{
+ const base={analyticsConsent:true,notificationsEnabled:false,userInitiatedInApp:true,daysSincePermissionPrompt:40,verifiedBenefits:{friend_quest:true}};
+ const a=planConsentSafeRetention({score:scoreChurnRisk({features:weak}),context:base});assert.equal(a.action,'explain_permission_in_app');assert.equal(a.benefit,'friend_quest');assert.equal(a.automaticSend,false);
+ assert.equal(planConsentSafeRetention({score:scoreChurnRisk({features:weak}),context:{...base,userInitiatedInApp:false}}).action,'none');
+ assert.equal(planConsentSafeRetention({score:scoreChurnRisk({features:weak}),context:{...base,daysSincePermissionPrompt:15}}).action,'none');
+});
+test('stability, consent and holdout take priority over push optimization',()=>{
+ const score=scoreChurnRisk({features:weak});
+ assert.equal(planConsentSafeRetention({score,context:{analyticsConsent:true,hasRecentCrash:true,notificationsEnabled:true,notificationConsent:true,experimentArm:'treatment'}}).action,'prioritize_stability_fix');
+ assert.equal(planConsentSafeRetention({score,context:{analyticsConsent:false}}).action,'none');
+ assert.equal(planConsentSafeRetention({score,context:{analyticsConsent:true,notificationsEnabled:true,notificationConsent:true,experimentArm:'holdout'}}).action,'none');
+ const result=planConsentSafeRetention({score,context:{analyticsConsent:true,notificationsEnabled:true,notificationConsent:true,experimentArm:'treatment'}});
+ assert.equal(result.action,'review_existing_notification_policy');assert.equal(result.automaticSend,false);
+});

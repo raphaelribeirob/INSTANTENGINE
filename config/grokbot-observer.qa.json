@@ -1,0 +1,14 @@
+{
+  "integration": "grokbot_riverengine_retention_observer",
+  "version": "2.9.0",
+  "environment": "test",
+  "enabled": false,
+  "operations": ["catalog", "overview", "retention", "experiment", "diagnose", "pipeline"],
+  "credential_model": "HMAC secret scoped to one tenant/app/environment; persistent nonce; no subject credentials",
+  "minimum_cohort": 20,
+  "experiment_flags": [],
+  "outputs": "consented aggregate metrics only",
+  "write_access": false,
+  "automatic_notifications": false,
+  "agent_scheduler": "external Grokbot routine; not provisioned"
+}

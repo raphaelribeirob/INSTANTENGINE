@@ -1,0 +1,79 @@
+{
+  "name": "@riverthree/instantengine",
+  "version": "3.1.0",
+  "description": "INSTANTENGINE — consent-first multi-app retention, churn QA and intelligent notification policies (former RIVERENGINE)",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./worker": "./src/worker.mjs",
+    "./neon": "./src/storage/neon.mjs",
+    "./posthog": "./src/integrations/posthog.mjs",
+    "./commerce": "./src/commerce.mjs",
+    "./retention-next": "./src/retention-next.mjs",
+    "./legacy": "./legacy/R3ENGINE_v1.1.mjs",
+    "./gateway": "./src/integrations/http-gateway.mjs",
+    "./posthog-ab": "./src/integrations/posthog-ab.mjs",
+    "./duolingo-retention": "./src/duolingo-retention.mjs",
+    "./smart-notifications": "./src/smart-notifications.mjs",
+    "./graphile-worker": "./src/integrations/graphile-worker.mjs",
+    "./bandit-policy": "./src/integrations/bandit-policy.mjs",
+    "./grokbot-observer": "./src/integrations/grokbot-observer.mjs",
+    "./observer-neon": "./src/storage/observer-neon.mjs",
+    "./value-outbox": "./src/integrations/value-outbox.mjs",
+    "./value-outbox-neon": "./src/storage/value-outbox-neon.mjs",
+    "./grokbot-client": "./agents/grokbot/observer-client.mjs",
+    "./app-instrumentation": "./src/integrations/app-instrumentation.mjs",
+    "./churn-prediction": "./src/churn-prediction.mjs",
+    "./churn-neon": "./src/storage/churn-neon.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs && node --test integrations/instantstudy/tmntBridge.test.js && node legacy/R3ENGINE_v1.1.mjs test",
+    "smoke": "node legacy/R3ENGINE_v1.1.mjs smoke",
+    "check": "node legacy/R3ENGINE_v1.1.mjs check && node --check src/index.mjs && node --check src/commerce.mjs && node --check src/worker.mjs && node --check src/storage/neon.mjs && node --check src/policy.mjs && node --check src/retention-next.mjs && node --check src/decisions.mjs && node --check src/habits.mjs && node --check src/storage/memory.mjs && node --check src/analytics.mjs && node --check src/duolingo-retention.mjs && node --check examples/duolingo-ifood.mjs && node --check src/integrations/posthog.mjs && node --check test/worker-security.test.mjs && node --check src/integrations/http-gateway.mjs && node --check examples/duolingo-next.mjs && node --check test/v21-adversarial.test.mjs && node --check integrations/instantstudy/tmntBridge.js && node --check src/integrations/posthog-ab.mjs && node --check examples/posthog-ab-qa.mjs",
+    "worker": "node bin/run-worker.mjs",
+    "db:bootstrap:build": "node scripts/build-bootstrap.mjs",
+    "db:verify-install": "node scripts/verify-install.mjs",
+    "db:verify-live": "node scripts/verify-live-neon.mjs",
+    "load:smoke": "node scripts/load-smoke.mjs",
+    "demo:multiapp": "node examples/multi-app.mjs",
+    "demo:duolingo-ifood": "node examples/duolingo-ifood.mjs",
+    "demo:next": "node examples/duolingo-next.mjs",
+    "demo:http": "node examples/http-integration.mjs",
+    "demo:ab": "node examples/posthog-ab-qa.mjs",
+    "demo:smart-notifications": "node examples/smart-notification-qa.mjs",
+    "test:stats": "python -m unittest discover -s python -p \"test_*.py\"",
+    "check:integrations": "node --check src/integrations/graphile-worker.mjs && node --check src/integrations/bandit-policy.mjs",
+    "test:integrations": "node --test test/graphile-worker-v28.test.mjs test/bandit-policy-v28.test.mjs",
+    "demo:churn": "node examples/churn-qa.mjs",
+    "demo:observer": "node examples/grokbot-observer.mjs",
+    "test:observer": "node --test test/grokbot-observer.test.mjs test/observer-neon.test.mjs test/value-outbox.test.mjs",
+    "test:churn": "node --test test/churn-prediction.test.mjs test/churn-neon-contract.test.mjs",
+    "check:churn": "node --check src/churn-prediction.mjs && node --check src/storage/churn-neon.mjs",
+    "check:observer": "node --check src/integrations/grokbot-observer.mjs && node --check src/storage/observer-neon.mjs && node --check src/integrations/value-outbox.mjs && node --check src/storage/value-outbox-neon.mjs && node --check agents/grokbot/observer-client.mjs && node --check src/integrations/app-instrumentation.mjs && node --check bin/run-value-outbox.mjs",
+    "worker:value-outbox": "node bin/run-value-outbox.mjs",
+    "worker:churn": "node bin/run-churn.mjs",
+    "worker:purge": "node bin/run-churn-purge.mjs",
+    "check:manifest": "node scripts/verify-manifest.mjs",
+    "test:identity": "node --test test/instantengine-identity.test.mjs test/churn-gap-v31.test.mjs test/churn-purge.test.mjs test/manifest-integrity.test.mjs"
+  },
+  "peerDependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "posthog-node": ">=5.40.0 <7",
+    "graphile-worker": "^0.18.0"
+  },
+  "peerDependenciesMeta": {
+    "@neondatabase/serverless": {
+      "optional": true
+    },
+    "posthog-node": {
+      "optional": true
+    },
+    "graphile-worker": {
+      "optional": true
+    }
+  }
+}

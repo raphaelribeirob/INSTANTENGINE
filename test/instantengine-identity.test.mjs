@@ -7,7 +7,7 @@ import {createInstantEngagementAdapter as directAdapter} from '../src/churn-pred
 import {createInstantChurnNeonRepository as directRepo} from '../src/storage/churn-neon.mjs';
 const pkg=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
 test('package identity is stable and internal master specs are not shipped',()=>{
- assert.equal(pkg.name,'@riverthree/instantengine');assert.equal(pkg.version,'3.1.1');
+ assert.equal(pkg.name,'@riverthree/instantengine');assert.equal(pkg.version,'3.1.2');
  // Internal master specifications are kept outside the public repository.
  for(const f of ['INSTANTENGINE.MD','RIVERENGINE.MD','TMNT_ENGINE.MD','docs/LEGACY_TMNT_MASTER.md'])assert.equal(existsSync(new URL('../'+f,import.meta.url)),false,f+' must not be shipped');
 });

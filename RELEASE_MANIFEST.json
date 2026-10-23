@@ -1,9 +1,9 @@
 {
   "product": "INSTANTENGINE",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "package_name": "@riverthree/instantengine",
   "status": "source QA, not deployed",
-  "file_count_excluding_manifest": 163,
+  "file_count_excluding_manifest": 165,
   "files": [
     {
       "path": ".env.example",
@@ -12,8 +12,8 @@
     },
     {
       "path": ".github/workflows/instantengine-qa.yml",
-      "sha256": "1caa72cf59a4b46c43c32eede23908d89293bde0378dd93372c67a562b2e5cc7",
-      "bytes": 1095
+      "sha256": "96c77b6062fb4857c156f5a6c3b6cefc2078f1074d1f6f7c6bc6e12e6064d338",
+      "bytes": 1222
     },
     {
       "path": ".gitignore",
@@ -246,6 +246,11 @@
       "bytes": 2426
     },
     {
+      "path": "docs/V3_1_1_CHURN_FIXES.md",
+      "sha256": "f986e9975c3577e2a1efcd8dc64b91ac92c3efcc91254ec396f2c840e1da32c6",
+      "bytes": 2910
+    },
+    {
       "path": "docs/V30_ACCEPTANCE.md",
       "sha256": "d095fdababe4eba46a7d205e50ac46c5bb8fa4b7a076dc988a33e1ebf74a3e37",
       "bytes": 2181
@@ -447,12 +452,12 @@
     },
     {
       "path": "package-lock.json",
-      "sha256": "45d540a9d3e5681f56124c1bebd03e195ce2e6ec587fbcc4941c67512e2f6665",
+      "sha256": "3041e074632697f0c797a079e8e3317e7b12d4625e2687b0df7513ba85372e35",
       "bytes": 670
     },
     {
       "path": "package.json",
-      "sha256": "f326b02c2aacfa3ebd1977359e3ef8a2c33873930a2306ef77555ed87460d76b",
+      "sha256": "f108b8b6de5d7d49f923f25df1323474ae05412c2afd74ec9bb333f292f1b3db",
       "bytes": 4977
     },
     {
@@ -487,8 +492,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "3a008b0ad4b6a79829f04e34f3d11a6e3461d49d77b9ddf45945fbf4860ecc1e",
-      "bytes": 16562
+      "sha256": "eb07b9b695030f567e86683ba1927539840e2d09d756d8ec4161ed3174240d2a",
+      "bytes": 17122
     },
     {
       "path": "scripts/build-bootstrap.mjs",
@@ -527,8 +532,8 @@
     },
     {
       "path": "src/churn-prediction.mjs",
-      "sha256": "2b6f4f9d571f8783a7c64582e8603c5dbcaeb48ce2f7210f508e0cc637174010",
-      "bytes": 10506
+      "sha256": "f413101b13f8594a3e3f5b8e79dd662ec5d9fb124e2c203d71af784633d6d463",
+      "bytes": 11176
     },
     {
       "path": "src/commerce.mjs",
@@ -676,13 +681,18 @@
       "bytes": 1091
     },
     {
+      "path": "test/churn-job-regression.test.mjs",
+      "sha256": "81ca850e33b560bbe445372be2a209b0df0707e50adb94658fe7c0e8c7016e3a",
+      "bytes": 4331
+    },
+    {
       "path": "test/churn-neon-contract.test.mjs",
       "sha256": "6d6107d9738e58872aaf8cefb9caeffdb7c5d0bba2b1607d9fb811e33d663300",
       "bytes": 1973
     },
     {
       "path": "test/churn-prediction.test.mjs",
-      "sha256": "3c1973db647b680e53813038354dcb95feae8a8905407f37390467ddddae478d",
+      "sha256": "aafd4396aa629cbd4fcba77c525ba56026dcacb70a7fed62c4d3b7ad0e409214",
       "bytes": 7519
     },
     {
@@ -732,7 +742,7 @@
     },
     {
       "path": "test/instantengine-identity.test.mjs",
-      "sha256": "3ec70c8d45800ae0deffeb43df0c7c72e6446e8e3f3e9279f5d82f73e257c09b",
+      "sha256": "cfc4102e793555cb10956d39cceb823892c2b1bc3b630571b56e7606a5fdcde9",
       "bytes": 2009
     },
     {
@@ -742,7 +752,7 @@
     },
     {
       "path": "test/manifest-integrity.test.mjs",
-      "sha256": "446126b430eb85aa6178a97c95577abecf6520ad693a017e20e04645f5d9f895",
+      "sha256": "bb55c43c69a623d6075a7aea1acc5b5642d3c447d52d3d067ae453b4215341c6",
       "bytes": 682
     },
     {
@@ -772,7 +782,7 @@
     },
     {
       "path": "test/riverengine-brand.test.mjs",
-      "sha256": "5d3b4f81a91ef0c89e403e3d64263d7a7b87fc929b8ad680b2d65982d1a35c22",
+      "sha256": "00fcc43b03b0450178b03d0a053540dab56f26036f23b3ad1f859fdc5b90a118",
       "bytes": 1016
     },
     {

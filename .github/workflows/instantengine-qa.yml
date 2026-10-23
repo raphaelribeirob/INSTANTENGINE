@@ -33,6 +33,8 @@ jobs:
           npm run db:verify-install
           npm run smoke
           npm run test:identity
+      - name: Verify churn job UTC and pagination regression gates
+        run: node --test test/churn-job-regression.test.mjs
       - name: Verify independent churn and purge are OFF by default
         run: |
           npm run worker:churn

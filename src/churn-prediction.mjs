@@ -78,30 +78,40 @@ export function scoreChurnRisk({features,model=null}={}){
   riskTier:index>=70?'high':index>=35?'medium':'low',reasonCodes:reasons,recommendedAction:'human_review_only',automaticSend:false};
 }
 /** Fixed UTC daily job. Scoped, opt-in-only repository; no messaging side-effects.
+ * Default is the last fully closed UTC day, never the current incomplete day.
  * Idempotent daily upsert; pagination supports deterministic resumption.
  */
 export function createChurnDailyJob({repository,enabled=false,allowProduction=false,model=null,now=()=>new Date()}={}){
  if(!repository||typeof repository.listChurnFeatures!=='function'||typeof repository.upsertChurnScore!=='function'||typeof enabled!=='boolean'||typeof allowProduction!=='boolean')throw new TypeError('Scoped churn repository required');
  if(model)validateModel(model);
- return Object.freeze({async run({tenant,app,environment,asOf=new Date(now()).toISOString().slice(0,10),pageSize=250,maxPages=100}={}){
-  const scope=validateChurnScope({tenant,app,environment});isoDate(asOf);
-  if(asOf>new Date(now()).toISOString().slice(0,10))throw new TypeError('Future day refused');
+ return Object.freeze({async run({tenant,app,environment,asOf,pageSize=250,maxPages=100}={}){
+  const scope=validateChurnScope({tenant,app,environment});
+  const clock=new Date(now());
+  if(!Number.isFinite(clock.getTime()))throw new TypeError('Invalid UTC job clock');
+  const todayUtc=clock.toISOString().slice(0,10);
+  // The default scores yesterday even when the scheduler runs near UTC midnight.
+  const scoreDay=isoDate(asOf??new Date(clock.getTime()-86400000).toISOString().slice(0,10));
+  if(scoreDay>=todayUtc)throw new TypeError('Churn score day must be a completed UTC day');
   if(!enabled)return {status:'disabled',processed:0};
   if(environment==='prod'&&!allowProduction)return {status:'production_disabled',processed:0};
   if(!Number.isInteger(pageSize)||pageSize<1||pageSize>500||!Number.isInteger(maxPages)||maxPages<1||maxPages>10000)throw new TypeError('Invalid pagination');
-  let afterSubject='',processed=0,pages=0;
-  for(;pages<maxPages;pages++){
-   const batch=await repository.listChurnFeatures({...scope,asOf,afterSubject,limit:pageSize});
+  let afterSubject='',processed=0,pages=0,mayHaveMore=false;
+  for(;pages<maxPages;){
+   const batch=await repository.listChurnFeatures({...scope,asOf:scoreDay,afterSubject,limit:pageSize});
+   pages++; // Count actual repository page reads, including empty terminal reads.
    if(!Array.isArray(batch)||batch.length>pageSize)throw new TypeError('Invalid repository page');
-   if(batch.length===0)break;
+   if(batch.length===0){mayHaveMore=false;break;}
    for(const row of batch){if(!SUBJECT.test(row?.subject??'')||row.subject<=afterSubject)throw new TypeError('Unordered subject pagination');
     const scored=scoreChurnRisk({features:row.features,model});
-    await repository.upsertChurnScore({...scope,subject:row.subject,asOf,score:scored});
+    await repository.upsertChurnScore({...scope,subject:row.subject,asOf:scoreDay,score:scored});
     afterSubject=row.subject;processed++;
    }
-   if(batch.length<pageSize)break;
+   // A full final page may have more subjects. We deliberately avoid an extra
+   // query beyond maxPages: hasMore is conservative at the page cap.
+   mayHaveMore=batch.length===pageSize;
+   if(!mayHaveMore)break;
   }
-  return {status:'ok',asOf,processed,pages:pages+1,hasMore:pages===maxPages,modelVersion:model?.version??'river_heuristic_v1',notificationsSent:0};
+  return {status:'ok',asOf:scoreDay,processed,pages,hasMore:mayHaveMore,modelVersion:model?.version??'river_heuristic_v1',notificationsSent:0};
  }});
 }
 

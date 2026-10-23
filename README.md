@@ -4,6 +4,8 @@ INSTANTENGINE is a Node.js (ESM) and PostgreSQL retention engine. Several apps c
 
 > **Status: source QA only. It is not deployed to production.** No real users, notifications, customer data or external AI models were connected in any of the test runs described here.
 
+**v3.1.1 reliability patch (2026-10-22):** Daily churn scoring now defaults to the last completed UTC day and refuses explicit today/future dates. `pages` counts actual database page reads; `hasMore` is conservative if a full page hits `maxPages`. Ten regression tests cover UTC midnight, invalid days, pagination limits and production guards. See [`docs/V3_1_1_CHURN_FIXES.md`](docs/V3_1_1_CHURN_FIXES.md). Local source QA: 343 modern Node + 4 bridge + 137 legacy tests (484 total), plus 9 Python tests. No real retention uplift or push delivery is claimed.
+
 ## The problem it solves
 
 Teams that run several consumer apps tend to re-implement the same retention mechanics in each app: streaks, reminders, experiments and churn signals. These copies often take shortcuts that hurt users and data quality:
